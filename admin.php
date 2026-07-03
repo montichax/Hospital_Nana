@@ -147,6 +147,81 @@ function uploadMultipleAdminFiles($fieldName, $prefix, $oldFiles = '') {
 // ==================== PROCESS ====================
 
 // [1] ข่าวประชาสัมพันธ์ (news)
+// [0] จัดการผู้ใช้ (users) — เฉพาะ main admin
+if ($is_main_admin) {
+    // เพิ่มผู้ใช้ใหม่
+    if (isset($_POST['action_user']) && $_POST['action_user'] === 'create') {
+        $u_username     = trim($_POST['u_username'] ?? '');
+        $u_password     = $_POST['u_password'] ?? '';
+        $u_role         = $_POST['u_role'] ?? 'dept';
+        $u_department_id = ($u_role === 'dept') ? (int)($_POST['u_department_id'] ?? 0) : null;
+        $u_display_name = trim($_POST['u_display_name'] ?? '');
+
+        if ($u_username === '' || strlen($u_password) < 8) {
+            $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => 'กรุณากรอกชื่อผู้ใช้และรหัสผ่านอย่างน้อย 8 ตัวอักษร'];
+        } elseif ($u_role === 'dept' && $u_department_id <= 0) {
+            $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => 'กรุณาเลือกแผนกสำหรับ admin แผนก'];
+        } else {
+            try {
+                $hash = hash('sha256', $u_password);
+                $stmt = $conn->prepare("INSERT INTO users (username, password_hash, role, department_id, display_name) VALUES (:u, :p, :r, :d, :n)");
+                $stmt->execute([
+                    ':u' => $u_username, ':p' => $hash, ':r' => $u_role,
+                    ':d' => $u_department_id, ':n' => $u_display_name ?: $u_username,
+                ]);
+                $_SESSION['user_flash'] = ['type' => 'success', 'msg' => "เพิ่มผู้ใช้ '$u_username' เรียบร้อยแล้ว"];
+            } catch (PDOException $e) {
+                $msg = ($e->getCode() == 23000) ? "ชื่อผู้ใช้ '$u_username' มีอยู่แล้วในระบบ" : "เกิดข้อผิดพลาด: " . $e->getMessage();
+                $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => $msg];
+            }
+        }
+        header("Location: admin.php?tab=users");
+        exit;
+    }
+
+    // เปลี่ยนรหัสผ่าน
+    if (isset($_POST['action_user']) && $_POST['action_user'] === 'reset_password') {
+        $uid = (int)($_POST['id'] ?? 0);
+        $new_password = $_POST['new_password'] ?? '';
+        if ($uid > 0 && strlen($new_password) >= 8) {
+            $hash = hash('sha256', $new_password);
+            $conn->prepare("UPDATE users SET password_hash = :p WHERE id = :id")->execute([':p' => $hash, ':id' => $uid]);
+            $_SESSION['user_flash'] = ['type' => 'success', 'msg' => 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว'];
+        } else {
+            $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => 'รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร'];
+        }
+        header("Location: admin.php?tab=users");
+        exit;
+    }
+
+    // ลบผู้ใช้
+    if (isset($_GET['del_user'])) {
+        $uid = (int)$_GET['del_user'];
+        if ($uid === (int)$_SESSION['user_id']) {
+            $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => 'ไม่สามารถลบบัญชีตนเองได้'];
+        } else {
+            $chk = $conn->prepare("SELECT role FROM users WHERE id = :id");
+            $chk->execute([':id' => $uid]);
+            $target = $chk->fetch(PDO::FETCH_ASSOC);
+            if ($target && $target['role'] === 'main') {
+                $cnt = $conn->query("SELECT COUNT(*) FROM users WHERE role='main'")->fetchColumn();
+                if ((int)$cnt <= 1) {
+                    $_SESSION['user_flash'] = ['type' => 'danger', 'msg' => 'ไม่สามารถลบ admin หลักคนสุดท้ายได้'];
+                } else {
+                    $conn->prepare("DELETE FROM users WHERE id = :id")->execute([':id' => $uid]);
+                    $_SESSION['user_flash'] = ['type' => 'success', 'msg' => 'ลบผู้ใช้เรียบร้อยแล้ว'];
+                }
+            } else {
+                $conn->prepare("DELETE FROM users WHERE id = :id")->execute([':id' => $uid]);
+                $_SESSION['user_flash'] = ['type' => 'success', 'msg' => 'ลบผู้ใช้เรียบร้อยแล้ว'];
+            }
+        }
+        header("Location: admin.php?tab=users");
+        exit;
+    }
+}
+
+// [1] ข่าว
 if (isset($_POST['action_news'])) {
     $file_name    = uploadMultipleAdminFiles('image', 'news', $_POST['old_image'] ?? 'default.jpg');
     $is_new_status = isset($_POST['is_new']) ? 1 : 0;
@@ -266,11 +341,33 @@ if ($active_tab == 'news') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Hospital Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="admin.css">
     <style>
+        /* ============================================
+           Toggle switch "เปิดแสดงป้ายใหม่" — แก้ปัญหา toggle ทะลุพื้น
+           ============================================ */
+        .form-switch .form-check-input {
+            width: 2.5em !important;
+            height: 1.25em !important;
+            margin-top: 0.25em;
+            background-color: #dee2e6 !important;
+            border-color: #adb5bd !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+            cursor: pointer;
+        }
+        .form-switch .form-check-input:checked {
+            background-color: var(--hosp-orange, #f26722) !important;
+            border-color: var(--hosp-orange, #f26722) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+        }
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(242, 103, 34, 0.25) !important;
+        }
+        .form-switch-indented { padding-left: 3rem !important; }
+        .form-switch-indented .form-check-input { margin-left: -2.5em !important; }
+
         /* ============================================
            สไตล์ตาราง Admin — ให้ทุก tab (news/dept/banner/dept_contents) ดูเหมือนกัน
            ============================================ */
@@ -404,9 +501,6 @@ if ($active_tab == 'news') {
             </small>
         </div>
         <div class="d-flex gap-2">
-            <?php if ($is_main_admin): ?>
-                <a href="admin_users.php" class="btn btn-outline-primary"><i class="bi bi-people-fill"></i> จัดการผู้ใช้</a>
-            <?php endif; ?>
             <a href="logout.php" class="btn btn-outline-secondary">ออกจากระบบ</a>
         </div>
     </div>
@@ -435,6 +529,11 @@ if ($active_tab == 'news') {
         <li class="nav-item">
             <a class="nav-link <?= $active_tab == 'banners' ? 'active' : '' ?>" href="?tab=banners">
                 <i class="bi bi-image fs-5"></i> Banner / Slider
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?= $active_tab == 'users' ? 'active' : '' ?>" href="?tab=users">
+                <i class="bi bi-people-fill fs-5"></i> จัดการผู้ใช้
             </a>
         </li>
         <?php endif; ?>
@@ -847,6 +946,146 @@ if ($active_tab == 'news') {
         </div>
         <?php endif; ?>
 
+        <?php if($active_tab == 'users' && $is_main_admin):
+            $all_users = $conn->query("SELECT u.*, d.name AS dept_name FROM users u LEFT JOIN departments d ON d.id = u.department_id ORDER BY u.role ASC, u.id ASC")->fetchAll(PDO::FETCH_ASSOC);
+            $u_flash = $_SESSION['user_flash'] ?? null;
+            unset($_SESSION['user_flash']);
+        ?>
+        <div>
+            <h5 class="text-hospital mb-3 fw-bold"><i class="bi bi-people-fill me-1"></i>จัดการผู้ใช้งานระบบ</h5>
+
+            <?php if ($u_flash): ?>
+                <div class="alert alert-<?= htmlspecialchars($u_flash['type']) ?>"><?= htmlspecialchars($u_flash['msg']) ?></div>
+            <?php endif; ?>
+
+            <!-- ฟอร์มเพิ่มผู้ใช้ -->
+            <form action="admin.php?tab=users" method="POST" class="admin-form-container">
+                <input type="hidden" name="action_user" value="create">
+                <div class="row g-2 mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">ชื่อผู้ใช้ (username)</label>
+                        <input type="text" name="u_username" class="form-control" required autocomplete="off">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</label>
+                        <input type="text" name="u_password" class="form-control" required minlength="8" autocomplete="off">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">ชื่อที่แสดง</label>
+                        <input type="text" name="u_display_name" class="form-control" placeholder="เช่น หัวหน้าแผนกกุมารเวช">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">ประเภทผู้ใช้</label>
+                        <select name="u_role" class="form-select" id="u_role_select" onchange="toggleUserDeptRow()">
+                            <option value="dept">Admin แผนก</option>
+                            <option value="main">Admin หลัก</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-2 align-items-end" id="u_dept_row">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">แผนกที่รับผิดชอบ</label>
+                        <select name="u_department_id" class="form-select">
+                            <option value="0">— เลือกแผนก —</option>
+                            <?php foreach ($all_depts as $d): ?>
+                                <option value="<?= (int)$d['id'] ?>"><?= htmlspecialchars($d['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button type="submit" class="btn btn-hospital-orange"><i class="bi bi-plus-lg"></i> เพิ่มผู้ใช้</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- ตารางรายชื่อผู้ใช้ -->
+            <div class="admin-table-scroll mt-4">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>ชื่อผู้ใช้ / ชื่อที่แสดง</th>
+                        <th style="width:130px;">ประเภท</th>
+                        <th>แผนก</th>
+                        <th style="width:220px;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(empty($all_users)): ?>
+                        <tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มีผู้ใช้งาน</td></tr>
+                    <?php endif; ?>
+                    <?php foreach ($all_users as $u): ?>
+                    <tr>
+                        <td><?= (int)$u['id'] ?></td>
+                        <td>
+                            <strong><?= htmlspecialchars($u['username']) ?></strong>
+                            <?php if (!empty($u['display_name']) && $u['display_name'] !== $u['username']): ?>
+                                <div class="small text-muted"><?= htmlspecialchars($u['display_name']) ?></div>
+                            <?php endif; ?>
+                            <?php if ((int)$u['id'] === (int)$_SESSION['user_id']): ?>
+                                <span class="badge bg-info mt-1">คุณ</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($u['role'] === 'main'): ?>
+                                <span class="badge bg-danger">Admin หลัก</span>
+                            <?php else: ?>
+                                <span class="badge-orange-style">Admin แผนก</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($u['role'] === 'main'): ?>
+                                <span class="text-muted small">(ทั้งหมด)</span>
+                            <?php elseif (!empty($u['dept_name'])): ?>
+                                <?= htmlspecialchars($u['dept_name']) ?>
+                            <?php else: ?>
+                                <span class="text-danger small">ไม่มีแผนก</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-edit-style btn-sm" data-bs-toggle="modal" data-bs-target="#pwdModal<?= (int)$u['id'] ?>">
+                                <i class="bi bi-key-fill"></i> เปลี่ยนรหัส
+                            </button>
+                            <?php if ((int)$u['id'] !== (int)$_SESSION['user_id']): ?>
+                                <a href="admin.php?tab=users&del_user=<?= (int)$u['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ยืนยันการลบผู้ใช้ <?= htmlspecialchars(addslashes($u['username'])) ?> ?')">
+                                    <i class="bi bi-trash-fill"></i> ลบ
+                                </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- Modals เปลี่ยนรหัสผ่าน -->
+            <?php foreach ($all_users as $u): ?>
+            <div class="modal fade" id="pwdModal<?= (int)$u['id'] ?>" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" action="admin.php?tab=users">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-hospital fw-bold">เปลี่ยนรหัสผ่าน: <?= htmlspecialchars($u['username']) ?></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="action_user" value="reset_password">
+                                <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+                                <label class="form-label fw-bold">รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)</label>
+                                <input type="text" name="new_password" class="form-control" required minlength="8">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                <button type="submit" class="btn btn-hospital-orange">บันทึก</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
     </div></div><div class="modal fade" id="modalNews" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <form action="admin.php?tab=news" method="POST" enctype="multipart/form-data" class="modal-content">
@@ -1063,6 +1302,15 @@ function editBanner(id, title, subtitle, img, link, sort, isActive) {
 
     new bootstrap.Modal(document.getElementById('modalBanner')).show();
 }
+
+// สลับการแสดงช่อง "แผนก" ในฟอร์มเพิ่มผู้ใช้ (ซ่อนเมื่อเลือก main)
+function toggleUserDeptRow() {
+    const el = document.getElementById('u_role_select');
+    const row = document.getElementById('u_dept_row');
+    if (!el || !row) return;
+    row.style.display = (el.value === 'dept') ? 'flex' : 'none';
+}
+document.addEventListener('DOMContentLoaded', toggleUserDeptRow);
 </script>
 </body>
 </html>
