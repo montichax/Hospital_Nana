@@ -1,0 +1,615 @@
+/* ===================================================
+   department.css — สไตล์หน้าหอผู้ป่วย/หน่วยงาน (ใช้ร่วมกันทุกแผนก)
+   ใช้คู่กับ style.css (โหลด style.css ก่อนเสมอ เพื่อใช้ตัวแปรสี --hosp-orange)
+   =================================================== */
+
+body {
+    background-color: #f8f4f0;
+    font-family: "Sarabun", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body.dept-page {
+    padding-top: 193px;
+}
+
+body.dept-page .top-bar,
+body.dept-page .header-banner,
+body.dept-page .main-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    width: 100%;
+}
+
+body.dept-page .top-bar {
+    top: 0;
+}
+
+body.dept-page .header-banner {
+    top: 38px;
+}
+
+body.dept-page .main-nav {
+    top: 142px;
+}
+
+.top-bar {
+    background-color: var(--hosp-orange-dark);
+    color: #ffffff;
+    font-size: 14px;
+    padding: 8px 0;
+}
+
+/* ---------- ส่วนหัวของหน้า ---------- */
+.dept-page-header {
+    background-color: var(--hosp-orange);
+    color: #fff;
+    padding: 16px 0;
+    border-bottom: 4px solid var(--hosp-orange-dark);
+}
+.dept-page-header h1 { font-size: 22px; font-weight: 800; margin: 4px 0 0; }
+.dept-breadcrumb { font-size: 12.5px; opacity: 0.9; }
+.dept-breadcrumb a { color: #fff; text-decoration: none; }
+.dept-breadcrumb a:hover { text-decoration: underline; }
+.dept-breadcrumb i { font-size: 10px; margin: 0 4px; }
+
+.btn-back {
+    background-color: #fff;
+    color: var(--hosp-orange-dark);
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+.btn-back:hover { background-color: #ffe8d6; color: var(--hosp-orange-dark); }
+
+/* ==================== เมนูต้นไม้ด้านซ้าย ==================== */
+.dept-tree {
+    background: #fff;
+    border: 1px solid #e7ddd2;
+    border-radius: 12px;
+    padding: 10px 8px 14px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 14px;
+}
+
+.dept-tree-root {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--hosp-orange-dark);
+    padding: 8px 10px 12px;
+    border-bottom: 2px solid #f0e8e0;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+.dept-tree-root i { color: var(--hosp-orange); margin-right: 6px; }
+
+/* กลุ่มหมวด (ระดับ 1) */
+.dept-tree-grp-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #3a3a3a;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.dept-tree-grp-btn:hover { background: #fdf5ee; }
+.dept-tree-grp-btn .grp-ico { color: var(--hosp-orange); }
+.dept-tree-grp-btn .grp-label { flex: 1; line-height: 1.35; }
+.dept-tree-grp-btn .caret { font-size: 11px; color: #b9a995; transition: transform 0.2s; }
+.dept-tree-grp-btn.collapsed .caret { transform: rotate(-90deg); }
+.dept-tree-grp-btn .grp-count {
+    background: #efe5da;
+    color: var(--hosp-orange-dark);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    text-align: center;
+    padding: 1px 7px;
+    border-radius: 20px;
+}
+
+/* หมวดย่อย (ระดับ 2) */
+.dept-tree-section { padding: 2px 0 2px 14px; }
+.dept-tree-sec-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #9a8a78;
+    padding: 6px 8px 2px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.dept-tree-sec-label i { font-size: 18px; line-height: 0; }
+
+.dept-tree-empty {
+    font-size: 12px;
+    color: #c4b9ac;
+    padding: 3px 10px 6px 22px;
+    font-style: italic;
+}
+
+/* เอกสารแต่ละรายการ (ระดับ 3) */
+.dept-tree-leaf {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+    padding: 7px 10px 7px 18px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    border-radius: 0 6px 6px 0;
+    line-height: 1.45;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.dept-tree-leaf i { color: var(--hosp-orange); margin-top: 2px; flex-shrink: 0; font-size: 13px; }
+.dept-tree-leaf:hover { background: #fdf5ee; color: var(--hosp-orange-dark); }
+.dept-tree-leaf.active {
+    background: #fdeee2;
+    color: var(--hosp-orange-dark);
+    font-weight: 700;
+    border-left-color: var(--hosp-orange);
+}
+
+/* ==================== พื้นที่เนื้อหา ==================== */
+.dept-content-card {
+    background: #fff;
+    border: 1px solid #e7ddd2;
+    border-radius: 12px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.06);
+    padding: 26px 30px 30px;
+    min-height: 420px;
+}
+
+.dc-panel { display: none; animation: dcFade 0.25s ease; }
+.dc-panel.active { display: block; }
+@keyframes dcFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.dc-section-tag {
+    display: inline-block;
+    background: var(--hosp-orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+.dc-title {
+    font-size: 21px;
+    font-weight: 800;
+    color: #1f1f1f;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+.dc-title-center { text-align: center; }
+.dc-meta { font-size: 12.5px; color: #999; margin-bottom: 18px; }
+
+.dc-attachments { margin-bottom: 18px; }
+.dc-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    background: #f8f4f0;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 12px;
+    cursor: zoom-in;
+}
+.dc-pdf {
+    width: 100%;
+    height: 400px;
+    border: 1px solid #eadfd3;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 10px;
+}
+.dc-video {
+    width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    background: #000;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.dc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--hosp-orange);
+    color: #fff;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 4px 8px 4px 0;
+    transition: background 0.2s;
+}
+.dc-btn:hover { background-color: var(--hosp-orange-dark); color: #fff; }
+.dc-btn-grey { background-color: #6c757d; }
+.dc-btn-grey:hover { background-color: #5a6268; }
+.dc-btn-light { background-color: #efe5da; color: var(--hosp-orange-dark); }
+.dc-btn-light:hover { background-color: #e6d8c8; color: var(--hosp-orange-dark); }
+
+.dc-body {
+    font-size: 15px;
+    line-height: 1.9;
+    color: #444;
+    border-top: 1px solid #f0e8e0;
+    padding-top: 16px;
+    margin-top: 4px;
+}
+.dc-body-empty {
+    font-size: 13.5px;
+    color: #bbb;
+    border-top: 1px solid #f0e8e0;
+    padding-top: 16px;
+    margin-top: 4px;
+}
+
+/* การ์ดบุคลากร */
+.dc-personnel { text-align: center; }
+.dc-personnel .dc-img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin: 0 auto 14px;
+    border: 4px solid #f4ece2;
+}
+.dc-personnel-role {
+    display: inline-block;
+    background: #fdf5ee;
+    color: var(--hosp-orange-dark);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 18px;
+    border-radius: 20px;
+}
+
+/* สถานะว่าง */
+.dc-empty-state { text-align: center; padding: 60px 16px; color: #b3a594; }
+.dc-empty-state i { font-size: 54px; color: #e0d4c5; display: block; margin-bottom: 14px; }
+.dc-empty-state h3 { font-size: 18px; font-weight: 800; color: #9a8a78; margin-bottom: 8px; }
+.dc-empty-state p { font-size: 13.5px; color: #b3a594; max-width: 420px; margin: 0 auto; }
+
+/* Footer / Lightbox */
+.main-footer { background-color: var(--hosp-orange-dark); color: #fff; padding: 28px 0 14px; font-size: 13px; margin-top: 48px; }
+.footer-copyright { background-color: #e06b2d; padding: 10px 0; font-size: 12px; color: #fff; margin-top: 16px; }
+.lightbox-trigger { cursor: zoom-in; }
+
+/* ==================== Responsive ==================== */
+@media (max-width: 991.98px) {
+    .dept-tree { position: static; margin-bottom: 8px; }
+    .dc-panel { display: block !important; border-top: 1px dashed #ece2d5; padding-top: 18px; margin-top: 18px; }
+    .dc-panel:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+}
+@media (max-width: 575.98px) {
+    .dept-page-header h1 { font-size: 18px; }
+    .dept-content-card { padding: 18px 16px 22px; }
+    .dc-title { font-size: 18px; }
+    .dc-pdf { height: 400px; }
+    .dc-personnel .dc-img { width: 160px; height: 160px; }
+}
+
+/* ===================================================
+   เมนูแนวนอนของหน้าแผนก (dept-nav)
+   ใช้สีและสไตล์เดียวกับ index.php navbar — สำเนาจาก index.css
+   เพื่อให้หน้าแผนกทำงานได้โดยไม่ต้องโหลด index.css
+   =================================================== */
+
+/* ============== Dropdown Menu สีส้ม (copy จาก index.css) ============== */
+.main-nav .dropdown-menu {
+    background-color: var(--hosp-orange) !important;
+    border: none !important;
+    border-radius: 0 0 6px 6px !important;
+    padding: 0 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.main-nav .dropdown-item {
+    color: #ffffff !important;
+    font-size: 14px;
+    padding: 10px 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 500;
+}
+.main-nav .dropdown-item:last-child { border-bottom: none; }
+.main-nav .dropdown-item:hover { background-color: var(--hosp-orange-dark) !important; }
+
+/* Hover เปิด dropdown บน desktop (copy จาก index.css) */
+@media (min-width: 992px) {
+    .main-nav .nav-item.dropdown:hover .dropdown-menu { display: block; margin-top: 0; }
+}
+
+/* ============== สไตล์เฉพาะเมนูหมวดของแผนก ============== */
+.dept-nav-item { position: static; }   /* ให้ dropdown ขยายเต็มความกว้าง container */
+
+/* nav-link ของหมวด (ใช้ .main-nav .nav-link จาก style.css อยู่แล้ว — เพิ่มแค่ icon gap) */
+.main-nav .nav-link.dept-nav-link {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.2;
+}
+
+/* ตอนเปิด dropdown → พื้นขาว ตัวอักษรน้ำตาลเข้ม (เหมือน .nav-link.active ของ index) */
+.main-nav .nav-link.dept-nav-link.show {
+    background-color: #ffffff !important;
+    color: var(--hosp-orange-dark) !important;
+}
+@media (min-width: 992px) {
+    .main-nav .nav-item.dropdown:hover > .dropdown-toggle.dept-nav-link {
+        background-color: #ffffff !important;
+        color: var(--hosp-orange-dark) !important;
+    }
+}
+
+/* Dropdown ของเมนูแผนก: กว้างพอสำหรับชื่อเอกสาร */
+.dept-nav-dropdown {
+    min-width: 320px;
+    max-width: 480px;
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+/* หัวเรื่องหมวดย่อยใน dropdown (เช่น "ทำเนียบบุคลากร") */
+.dept-nav-secheader {
+    color: #ffe8d6 !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    padding: 10px 20px 4px !important;
+    margin: 0 !important;
+    text-transform: none !important;
+    letter-spacing: 0;
+    border: none !important;
+    background: transparent !important;
+}
+
+/* รายการเอกสารใน dropdown (เพิ่มไอคอนหน้าชื่อเอกสาร) */
+.dept-nav-leaf {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    line-height: 1.5 !important;
+    white-space: normal !important;
+}
+.dept-nav-leaf i {
+    color: #ffe0c2;
+    margin-top: 3px;
+    flex-shrink: 0;
+    font-size: 13px;
+}
+
+/* hr ระหว่างหมวด */
+.dept-nav-dropdown .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.18);
+    margin: 4px 12px;
+}
+
+/* ข้อความ "ยังไม่มีข้อมูล" */
+.dept-nav-empty {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-style: italic;
+    font-size: 13px !important;
+    padding: 10px 20px !important;
+    display: block;
+}
+
+/* การ์ดเนื้อหาแบบ full-width */
+.dept-content-card-wide { padding: 26px 36px 32px; }
+
+/* ==================== Responsive (mobile) ==================== */
+@media (max-width: 991.98px) {
+    /* style.css ของ index จัดการ navbar-collapse / dropdown-menu บน mobile ให้แล้ว
+       (position: static, width 100%, ฯลฯ) — ใช้ของเดิม */
+    .dept-nav-dropdown {
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .dept-content-card-wide { padding: 18px 16px 22px; }
+}
+
+/* ===================================================
+   การ์ดบุคลากร (โหมด dept_personnel ใน news_detail.php)
+   =================================================== */
+.personnel-card {
+    background: #fff;
+    border: 1px solid #efe5da;
+    border-radius: 12px;
+    padding: 16px 12px 14px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+.personnel-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(231, 133, 81, 0.18);
+    border-color: var(--hosp-orange);
+}
+.personnel-img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 0 auto 12px;
+    display: block;
+    /*border: 3px solid #f4ece2;*/
+    cursor: zoom-in;
+}
+.personnel-img-placeholder {
+    background: #f8f4f0;
+    color: #d9c8b3;
+    font-size: 48px;
+    line-height: 110px;
+    cursor: default;
+}
+.personnel-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d2d2d;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+.personnel-role {
+    font-size: 12.5px;
+    color: var(--hosp-orange-dark);
+    font-weight: 600;
+    line-height: 1.4;
+}
+@media (max-width: 575.98px) {
+    .personnel-img, .personnel-img-placeholder { width: 90px; height: 90px; line-height: 90px; font-size: 38px; }
+    .personnel-name { font-size: 13px; }
+    .personnel-role { font-size: 11.5px; }
+}
+
+
+/* ===================================================
+   PDF Wrap + Overlay (สำหรับ click เพื่อ lightbox)
+   =================================================== */
+.dc-pdf-wrap {
+    position: relative;
+    cursor: zoom-in;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    background: #f8f4f0;
+}
+.dc-pdf-wrap .dc-pdf,
+.dc-pdf-wrap .pdf-embed {
+    margin-bottom: 0;
+    pointer-events: none;   /* ให้คลิกผ่านลงไปที่ wrapper */
+    display: block;
+}
+.dc-pdf-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+    transition: background 0.2s;
+}
+.dc-pdf-wrap:hover .dc-pdf-overlay {
+    background: var(--hosp-orange);
+}
+
+/* ===================================================
+   File Tile (สำหรับ Word/Excel/PPT — คลิกเปิด)
+   =================================================== */
+.dc-file-tile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fdf5ee;
+    border: 1px solid #efe5da;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 8px 0;
+    text-decoration: none;
+    color: #444;
+    transition: all 0.2s;
+    max-width: 480px;
+}
+.dc-file-tile:hover {
+    background: #fff;
+    border-color: var(--hosp-orange);
+    color: var(--hosp-orange-dark);
+    transform: translateX(4px);
+    box-shadow: 0 4px 14px rgba(231, 133, 81, 0.18);
+}
+.dc-file-tile i {
+    font-size: 38px;
+    color: var(--hosp-orange);
+    line-height: 1;
+}
+.dc-file-tile-label {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    flex: 1;
+}
+.dc-file-tile-label small {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #999;
+    margin-top: 2px;
+}
+
+/* ===================================================
+   ปรับ page-header (ลบชื่อแผนกแล้ว เหลือแค่ปุ่มกลับ)
+   =================================================== */
+.dept-page-header { padding: 10px 0; }
+
+/* ===================================================
+   Container ของรูป/วิดีโอ — center กึ่งกลาง สูงสุด 400px
+   =================================================== */
+.dc-attachments .dc-img,
+.dc-attachments .dc-pdf,
+.dc-attachments .dc-video,
+.dc-attachments .dc-pdf-wrap {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===================================================
+   Override news_detail.css → จำกัดขนาด hero ที่ 400px
+   ใช้กับ news_detail.php เฉพาะโหมดเอกสารแผนก
+   =================================================== */
+.detail-hero-img {
+    max-height: 400px !important;
+}
+.pdf-embed {
+    height: 400px !important;
+}
+
+/* ===================================================
+   ชื่อแผนกใน header banner (เน้นว่าเป็นหน้าของแผนกไหน)
+   =================================================== */
+.dept-banner-name {
+    font-weight: 700;
+    opacity: 0.95;
+}
+.modal {
+    z-index: 1055;
+}
+
+.modal-backdrop {
+    z-index: 1050;
+}
