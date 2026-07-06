@@ -177,14 +177,14 @@ function renderAttachments($row) {
                                         $personnel_shown = true;
                                 ?>
                                     <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="dept_pediatrics.php?show_personnel=1">
+                                        <a class="dropdown-item dept-nav-leaf" href="dept_emergency.php?show_personnel=1">
                                             <i class="bi bi-people-fill"></i>
                                             <span>ทำเนียบบุคลากร</span>
                                         </a>
                                     </li>
                                 <?php else: ?>
                                     <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="dept_pediatrics.php?id=<?= (int)$it['id'] ?>">
+                                        <a class="dropdown-item dept-nav-leaf" href="dept_emergency.php?id=<?= (int)$it['id'] ?>">
                                             <i class="bi bi-file-earmark-text"></i>
                                             <span><?= htmlspecialchars($it['title']) ?></span>
                                         </a>
