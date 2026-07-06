@@ -61,14 +61,6 @@ $menuGroups = [
     ['label' => 'WI, SP',                           'icon' => 'bi-file-earmark-medical-fill','sections' => ['wi']],
 ];
 
-// ---------- ดึงข่าวทั้งหมดของแผนก (หมวด knowledge) เรียงจากใหม่->เก่า ----------
-$news_list = [];
-if (!empty($bySection['knowledge'])) {
-    $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id = :id AND section = 'knowledge' ORDER BY sort_order ASC, id ASC");
-    $stmt->execute([':id' => $DEPT_ID]);
-    $news_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
 // ---------- ฟังก์ชันแสดงไฟล์แนบ ----------
 function renderAttachments($row) {
     $files = parseFileNames($row['file_name'] ?? '');
@@ -93,19 +85,17 @@ function renderAttachments($row) {
             <small class="text-muted d-block mt-2">คลิกที่ไฟล์ PDF เพื่อขยาย</small>
           </div>';
         } elseif (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-            // วิดีโอ: เล่นในหน้า ไม่ popup
-            $html .= '<video class="dc-video" controls preload="metadata"><source src="' . $safe . '"></video>';
+            $html .= '<video class="dc-video shadow-sm" controls preload="metadata"><source src="' . $safe . '"></video>';
+            
         } else {
-            // Word/Excel/PPT: คลิกที่ไอคอนใหญ่เพื่อเปิด/ดาวน์โหลดในแท็บใหม่ (ไม่มีปุ่ม)
-            $icon = 'bi-file-earmark-arrow-down';
-            $label = 'ไฟล์เอกสาร';
+            $icon = 'bi-file-earmark-arrow-down'; $label = 'ไฟล์เอกสาร';
             if (in_array($ext, ['doc', 'docx'])) { $icon = 'bi-file-earmark-word-fill'; $label = 'ไฟล์ Word'; }
             elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) { $icon = 'bi-file-earmark-excel-fill'; $label = 'ไฟล์ Excel'; }
             elseif (in_array($ext, ['ppt', 'pptx'])) { $icon = 'bi-file-earmark-slides-fill'; $label = 'ไฟล์ PowerPoint'; }
-            $html .= '<a href="' . $safe . '" target="_blank" class="dc-file-tile">'
-                  .  '<i class="bi ' . $icon . '"></i>'
-                  .  '<div class="dc-file-tile-label">' . $label . '<small>คลิกเพื่อเปิด/ดาวน์โหลด</small></div>'
-                  .  '</a>';
+            $html .= '<a href="' . $safe . '" target="_blank" class="dc-file-tile mx-auto">
+                        <i class="bi ' . $icon . '"></i>
+                        <div class="dc-file-tile-label">' . $label . '<small>คลิกเพื่อเปิด/ดาวน์โหลด</small></div>
+                      </a>';
         }
     }
     return $html;
@@ -123,38 +113,37 @@ function renderAttachments($row) {
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="department.css">
 </head>
-<body>
+<body class="dept-page">
 
 <div class="top-bar">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div><i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th</div>
-        <a href="login.php" class="btn btn-sm btn-outline-light">เข้าสู่ระบบ</a>
+        <a href="login.php" class="btn btn-sm btn-outline-light ">เข้าสู่ระบบ</a>
     </div>
 </div>
 
 <div class="header-banner">
     <div class="container d-flex align-items-center">
         <a href="index.php" class="text-decoration-none">
-        <div class="me-3">
-            <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
-        </div>
+            <div class="me-3">
+                <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
+            </div>
         </a>
         <div>
-            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <?= htmlspecialchars($dept['name']) ?></h2>
+            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90">· <?= htmlspecialchars($dept['name']) ?></span></h2>
             <div class="small opacity-90">โรงพยาบาลปากช่องนานา | Nursing Department, Pakchong Nana Hospital</div>
         </div>
     </div>
 </div>
 
-<!-- ===== เมนูแนวนอนของแผนก (5 หมวด แบบ Dropdown) ===== -->
 <nav class="navbar navbar-expand-lg main-nav dept-nav p-0 shadow-sm">
     <div class="container">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#deptNavContent" aria-label="เปิดเมนู">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="deptNavContent">
-            <div class="navbar-nav dept-nav-bar">
-                                <?php foreach ($menuGroups as $gi => $group): ?>
+            <div class="navbar-nav">
+                <?php foreach ($menuGroups as $gi => $group): ?>
                     <?php
                     $groupItems = [];
                     foreach ($group['sections'] as $sec) {
@@ -162,11 +151,18 @@ function renderAttachments($row) {
                             foreach ($bySection[$sec] as $it) { $it['_sec_label'] = $sectionLabels[$sec] ?? $sec; $groupItems[] = $it; }
                         }
                     }
-                    $groupCount = count($groupItems);
                     ?>
-                    <div class="nav-item dropdown dept-nav-item">
-                        <a class="nav-link dropdown-toggle dept-nav-link" href="#" id="grp<?= $gi ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi <?= $group['icon'] ?>"></i>
+                    <?php if (in_array('knowledge', $group['sections'])): ?>
+                        <div class="nav-item">
+                            <a class="nav-link py-3 <?= !isset($_GET['id']) && !isset($_GET['show_personnel']) ? 'active' : '' ?>" href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>">
+                                <i class="bi <?= $group['icon'] ?> me-1"></i>
+                                <span><?= htmlspecialchars($group['label']) ?></span>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle py-3" href="#" id="grp<?= $gi ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi <?= $group['icon'] ?> me-1"></i>
                             <span><?= htmlspecialchars($group['label']) ?></span>
                         </a>
                         <ul class="dropdown-menu dept-nav-dropdown" aria-labelledby="grp<?= $gi ?>">
@@ -176,20 +172,19 @@ function renderAttachments($row) {
                                 <?php
                                 $personnel_shown = false;
                                 foreach ($groupItems as $it):
-                                    // หมวดบุคลากร: รวมเป็นรายการเดียว "ทำเนียบบุคลากร" (ห้ามโชว์ชื่อจริง)
                                     if ($it['section'] === 'personnel'):
                                         if ($personnel_shown) continue;
                                         $personnel_shown = true;
                                 ?>
                                     <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="news_detail.php?type=dept_personnel&amp;dept=<?= (int)$dept['id'] ?>">
+                                        <a class="dropdown-item dept-nav-leaf" href="dept_pediatrics.php?show_personnel=1">
                                             <i class="bi bi-people-fill"></i>
                                             <span>ทำเนียบบุคลากร</span>
                                         </a>
                                     </li>
                                 <?php else: ?>
                                     <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="news_detail.php?type=dept&amp;id=<?= (int)$it['id'] ?>">
+                                        <a class="dropdown-item dept-nav-leaf" href="dept_pediatrics.php?id=<?= (int)$it['id'] ?>">
                                             <i class="bi bi-file-earmark-text"></i>
                                             <span><?= htmlspecialchars($it['title']) ?></span>
                                         </a>
@@ -199,6 +194,7 @@ function renderAttachments($row) {
                             <?php endif; ?>
                         </ul>
                     </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -210,12 +206,148 @@ function renderAttachments($row) {
         <a href="index.php" class="btn-back"><i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าแรก</a>
     </div>
 </div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            
+            <?php
+            $target_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            $show_personnel = isset($_GET['show_personnel']) ? true : false;
+            $show_all_knowledge = true;
+            $selected_item = null;
+
+            if ($target_id > 0) {
+                $stmt = $conn->prepare("SELECT * FROM department_contents WHERE id = :id AND department_id = :dept_id");
+                $stmt->execute([':id' => $target_id, ':dept_id' => $DEPT_ID]);
+                $selected_item = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($selected_item && $selected_item['section'] !== 'knowledge') {
+                    $show_all_knowledge = false;
+                }
+            }
+            ?>
+
+           <?php if ($show_personnel): ?>
+                <!-- ==================== [โหมด: แสดงทำเนียบบุคลากรในหน้าเดียวกัน] ==================== -->
+                <div class="dept-content-card dept-content-card-wide">
+
+                    <?php if (empty($bySection['personnel'])): ?>
+                        <div class="dc-empty-state">
+                            <i class="bi bi-people"></i>
+                            <h3>ยังไม่มีข้อมูลบุคลากรในแผนกนี้</h3>
+                        </div>
+                    <?php else: ?>
+                        <!-- 🛠️ ปรับแก้คอลัมน์จาก col-6 เป็น col-md-6 col-lg-4 เพื่อขยายขนาดการ์ดโปรไฟล์ให้ใหญ่ขึ้นเต็มสเกลหน้าจอ -->
+                        <div class="row g-4 justify-content-center">
+                            <?php foreach ($bySection['personnel'] as $p):
+                                $p_files = parseFileNames($p['file_name'] ?? '');
+                                $p_img = null;
+                                foreach ($p_files as $pf) {
+                                    $pfe = strtolower(pathinfo($pf, PATHINFO_EXTENSION));
+                                    if (in_array($pfe, ['jpg','jpeg','png','gif','webp'])) { $p_img = $pf; break; }
+                                }
+                            ?>
+                                <div class="col-12 d-flex justify-content-center">
+                                    <!-- 🛠️ ฝัง inline style เพิ่มขนาดภาพ (กว้าง 100%) เพื่อให้ภาพพยาบาลดึงความกว้างขยายเต็มเนื้อหาการ์ด ไม่เล็กน่าเกลียด -->
+                                    <div class="personnel-card w-100 p-4  shadow-sm bg-white">
+                                        <?php if ($p_img): ?>
+                                            <img src="uploads/<?= htmlspecialchars($p_img) ?>" class="personnel-img lightbox-trigger img-fluid mx-auto mb-3" alt="" style="width: 100%; height: auto;">
+                                        <?php else: ?>
+                                            <div class="personnel-img personnel-img-placeholder d-flex align-items-center justify-content-center bg-light text-muted mx-auto mb-3" style="width: 100%; height: 220px; font-size: 64px;"><i class="bi bi-person-fill"></i></div>
+                                        <?php endif; ?>
+                                        <div class="personnel-name fw-bold text-dark mb-1" style="font-size: 16px;"><?= htmlspecialchars($p['title']) ?></div>
+                                        <?php if (!empty(trim($p['content'] ?? ''))): ?>
+                                            <div class="personnel-role small text-muted fw-semibold"><?= htmlspecialchars($p['content']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+            <?php elseif ($show_all_knowledge): ?>
+                <?php if (empty($bySection['knowledge'])): ?>
+                    <div class="dept-content-card">
+                        <div class="dc-empty-state">
+                            <i class="bi bi-folder-x"></i>
+                            <h3>ไม่พบข้อมูลข่าวสารประชาสัมพันธ์</h3>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="d-flex flex-column gap-4">
+                        <?php foreach ($bySection['knowledge'] as $row): ?>
+                            <div class="dept-content-card">
+                                <h2 class="dc-title"><?= htmlspecialchars($row['title']) ?></h2>
+                                
+                                <div class="dc-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> <?= dateToThaiFull($row['created_at']) ?>
+                                </div>
+                                
+                                <?php if (!empty($row['content'])): ?>
+                                    <div class="dc-body mb-4"><?= nl2br(htmlspecialchars($row['content'])) ?></div>
+                                <?php endif; ?>
+                                <div class="dc-attachments">
+                                    <?= renderAttachments($row) ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <?php if ($selected_item): ?>
+                    <div class="dept-content-card">
+                        <h2 class="dc-title"><?= htmlspecialchars($selected_item['title']) ?></h2>
+                        <div class="dc-meta mb-3">
+                            <i class="bi bi-calendar3 me-1"></i> <?= dateToThaiFull($selected_item['created_at']) ?>
+                        </div>
+                        <?php if (!empty($selected_item['content'])): ?>
+                            <div class="dc-body mb-4"><?= nl2br(htmlspecialchars($selected_item['content'])) ?></div>
+                        <?php endif; ?>
+                        <div class="dc-attachments">
+                            <?= renderAttachments($selected_item) ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
+        </div>
+    </div>
+</div>
+
+<footer class="main-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5><i class="bi bi-building"></i> กลุ่มงานการพยาบาล</h5>
+                <p class="small opacity-80 mt-2">โรงพยาบาลปากช่องนานา<br>มุ่งมั่นในการพัฒนาคุณภาพการพยาบาล เพื่อผู้ป่วยและผู้รับบริการทุกคน</p>
+            </div>
+            <div class="col-md-4">
+                <h5><i class="bi bi-geo-alt-fill"></i> ติดต่อเรา</h5>
+                <ul class="small opacity-80">
+                    <li><i class="bi bi-map"></i> 123 ถ.มิตรภาพ อ.ปากช่อง จ.นครราชสีมา 30130</li>
+                    <li><i class="bi bi-telephone"></i> 044-316-999 ต่อ 4400</li>
+                    <li><i class="bi bi-envelope"></i> nursing@pkc.go.th</li>
+                    <li><i class="bi bi-clock"></i> เปิดให้บริการ 24 ชั่วโมง</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5><i class="bi bi-link-45deg"></i> ลิงก์ที่เกี่ยวข้อง</h5>
+                <ul class="small opacity-80">
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กระทรวงสาธารณสุข</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สภาการพยาบาล</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กรมการแพทย์</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สรพ. (HA)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="footer-copyright text-center mt-4">
         <div class="container">© 2569 กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา — สงวนลิขสิทธิ์ทั้งหมด</div>
     </div>
 </footer>
 
-<!-- ===== Lightbox สำหรับดูรูปและ PDF ขนาดเต็มจอ ===== -->
 <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered p-0" style="background:rgba(0,0,0,0.92);">
         <div class="modal-content border-0" style="background:transparent;">
@@ -238,40 +370,25 @@ function renderAttachments($row) {
 
     function openLightbox(type, src) {
         if (type === 'img') {
-            imgEl.src = src;
-            imgEl.style.display = 'block';
-            pdfEl.style.display = 'none';
-            pdfEl.src = '';
+            imgEl.src = src; imgEl.style.display = 'block';
+            pdfEl.style.display = 'none'; pdfEl.src = '';
         } else if (type === 'pdf') {
-            pdfEl.src = src;
-            pdfEl.style.display = 'block';
-            imgEl.style.display = 'none';
-            imgEl.src = '';
+            pdfEl.src = src; pdfEl.style.display = 'block';
+            imgEl.style.display = 'none'; imgEl.src = '';
         }
         if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
         bsModal.show();
     }
 
-    // ล้าง src ตอนปิด เพื่อหยุดโหลด PDF
     modalEl.addEventListener('hidden.bs.modal', function () {
-        imgEl.src = '';
-        pdfEl.src = '';
+        imgEl.src = ''; pdfEl.src = '';
     });
 
-    // คลิกรูป
     document.addEventListener('click', function (e) {
         const img = e.target.closest('.lightbox-trigger');
-        if (img) {
-            e.preventDefault();
-            openLightbox('img', img.src);
-            return;
-        }
+        if (img) { e.preventDefault(); openLightbox('img', img.src); return; }
         const pdfBox = e.target.closest('.pdf-lightbox-trigger');
-        if (pdfBox) {
-            e.preventDefault();
-            openLightbox('pdf', pdfBox.dataset.src);
-            return;
-        }
+        if (pdfBox) { e.preventDefault(); openLightbox('pdf', pdfBox.dataset.src); return; }
     });
 })();
 </script>
