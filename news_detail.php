@@ -157,92 +157,113 @@ function fileIcon($ext) {
     </div>
 </div>
 
-<div class="container my-5">
-    <div class="row g-4">
+<div class="container content-wrapper">
+  <div class="row">
 
-        <div class="col-lg-8">
-            <div class="detail-card">
-                <?php if ($hero_image): ?>
-                    <img src="uploads/<?= htmlspecialchars($hero_image) ?>"
-                         class="detail-hero-img lightbox-trigger"
-                         alt="<?= htmlspecialchars($page_title) ?>"
-                         onerror="this.style.display='none'">
-                <?php elseif ($hero_pdf): ?>
-                    <div class="dc-pdf-wrap pdf-lightbox-trigger" data-src="uploads/<?= htmlspecialchars($hero_pdf) ?>">
-                        <embed src="uploads/<?= htmlspecialchars($hero_pdf) ?>" type="application/pdf" class="pdf-embed">
-                        <div class="dc-pdf-overlay"><i class="bi bi-arrows-fullscreen"></i> คลิกเพื่อดูเต็มจอ</div>
+    <div class="col-lg-8">
+        <div class="detail-card">
+
+            <?php if ($hero_image): ?>
+                <img src="uploads/<?= htmlspecialchars($hero_image) ?>"
+                     class="detail-hero-img lightbox-trigger"
+                     alt="<?= htmlspecialchars($page_title) ?>"
+                     onerror="this.style.display='none'">
+
+            <?php elseif ($hero_pdf): ?>
+                <div class="dc-pdf-wrap pdf-lightbox-trigger" data-src="uploads/<?= htmlspecialchars($hero_pdf) ?>">
+                    <embed src="uploads/<?= htmlspecialchars($hero_pdf) ?>" type="application/pdf" class="pdf-embed">
+                    <div class="dc-pdf-overlay">
+                        <i class="bi bi-arrows-fullscreen"></i> คลิกเพื่อดูเต็มจอ
                     </div>
-                <?php elseif ($hero_video): ?>
-                    <video class="pdf-embed" controls preload="metadata"><source src="uploads/<?= htmlspecialchars($hero_video) ?>"></video>
-                <?php endif; ?>
+                </div>
 
-                <div class="detail-body">
-                    <h1 class="detail-title"><?= htmlspecialchars($page_title) ?></h1>
-                    <div class="detail-meta">
-                        <span class="badge-date">
-                            <i class="bi bi-calendar-event me-1"></i>
-                            <?= dateToThaiFull($created_date) ?>
+            <?php elseif ($hero_video): ?>
+                <video class="pdf-embed" controls preload="metadata">
+                    <source src="uploads/<?= htmlspecialchars($hero_video) ?>">
+                </video>
+            <?php endif; ?>
+
+            <div class="detail-body">
+                <h1 class="detail-title"><?= htmlspecialchars($page_title) ?></h1>
+
+                <div class="detail-meta">
+                    <span class="badge-date">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        <?= dateToThaiFull($created_date) ?>
+                    </span>
+
+                    <?php if (!empty($section_label)): ?>
+                        <span class="badge-date" style="background-color:#6c757d;">
+                            <i class="bi bi-tag-fill me-1"></i><?= htmlspecialchars($section_label) ?>
                         </span>
-                        <?php if (!empty($section_label)): ?>
-                            <span class="badge-date" style="background-color:#6c757d;">
-                                <i class="bi bi-tag-fill me-1"></i><?= htmlspecialchars($section_label) ?>
-                            </span>
-                        <?php endif; ?>
-                        <?php if ($is_new === 1): ?>
-                            <span class="badge-isnew"><i class="bi bi-stars me-1"></i>ใหม่</span>
-                        <?php endif; ?>
-                    </div>
-                    <hr class="detail-divider">
-
-                    <?php if (!empty(trim($content_text))): ?>
-                        <div class="detail-content"><?= htmlspecialchars($content_text) ?></div>
-                    <?php else: ?>
-                        <div class="detail-content-empty">
-                            <i class="bi bi-newspaper mb-2 d-block" style="font-size:32px;color:#ddd;"></i>
-                            ไม่มีรายละเอียดเพิ่มเติม
-                        </div>
                     <?php endif; ?>
 
-                    <?php
-                    // ไฟล์อื่นๆ (Word/Excel/PPT) — แสดงเป็นกล่องไอคอน คลิกเปิดในแท็บใหม่
-                    foreach ($download_files as $fname):
-                        $fe = strtolower(pathinfo($fname, PATHINFO_EXTENSION));
-                        $ficon = 'bi-file-earmark-arrow-down'; $flabel = 'ไฟล์เอกสาร';
-                        if (in_array($fe, ['doc','docx'])) { $ficon = 'bi-file-earmark-word-fill'; $flabel = 'ไฟล์ Word'; }
-                        elseif (in_array($fe, ['xls','xlsx','csv'])) { $ficon = 'bi-file-earmark-excel-fill'; $flabel = 'ไฟล์ Excel'; }
-                        elseif (in_array($fe, ['ppt','pptx'])) { $ficon = 'bi-file-earmark-slides-fill'; $flabel = 'ไฟล์ PowerPoint'; }
-                    ?>
-                        <a href="uploads/<?= htmlspecialchars($fname) ?>" target="_blank" class="dc-file-tile mt-3">
-                            <i class="bi <?= $ficon ?>"></i>
-                            <div class="dc-file-tile-label"><?= $flabel ?><small>คลิกเพื่อเปิด/ดาวน์โหลด</small></div>
-                        </a>
-                    <?php endforeach; ?>
+                    <?php if ($is_new === 1): ?>
+                        <span class="badge-isnew">
+                            <i class="bi bi-stars me-1"></i>ใหม่
+                        </span>
+                    <?php endif; ?>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-lg-4">
-            <div class="section-title"><i class="bi bi-megaphone-fill me-1"></i> <?= htmlspecialchars($related_box_title) ?></div>
-            <div class="bg-white border rounded p-3">
-                <?php if (empty($related_news)): ?>
-                    <p class="text-muted small mb-0">ไม่มีรายการอื่น</p>
+                <hr class="detail-divider">
+
+                <?php if (!empty(trim($content_text))): ?>
+                    <div class="detail-content"><?= htmlspecialchars($content_text) ?></div>
                 <?php else: ?>
-                    <?php foreach ($related_news as $rel): ?>
-                    <a href="<?= htmlspecialchars($related_link_prefix) . (int)$rel['id'] ?>" class="related-news-item">
-                        <i class="bi bi-chevron-right small"></i>
-                        <div>
-                            <div class="related-news-title"><?= htmlspecialchars($rel['title']) ?></div>
-                            <div class="related-news-date"><?= dateToThaiFull($rel['created_at']) ?></div>
+                    <div class="detail-content-empty">
+                        <i class="bi bi-newspaper mb-2 d-block" style="font-size:32px;color:#ddd;"></i>
+                        ไม่มีรายละเอียดเพิ่มเติม
+                    </div>
+                <?php endif; ?>
+
+                <?php foreach ($download_files as $fname): ?>
+                    <a href="uploads/<?= htmlspecialchars($fname) ?>"
+                       target="_blank"
+                       class="dc-file-tile mt-3">
+                        <i class="bi bi-file-earmark-arrow-down"></i>
+                        <div class="dc-file-tile-label">
+                            ไฟล์เอกสาร <small>คลิกเพื่อเปิด/ดาวน์โหลด</small>
                         </div>
                     </a>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php endforeach; ?>
+
             </div>
         </div>
-
     </div>
-</div>
 
+    <div class="col-lg-4">
+        <div class="section-title">
+            <i class="bi bi-megaphone-fill me-1"></i>
+            <?= htmlspecialchars($related_box_title) ?>
+        </div>
+
+        <div class="bg-white border rounded p-3">
+            <?php if (empty($related_news)): ?>
+                <p class="text-muted small mb-0">ไม่มีรายการอื่น</p>
+            <?php else: ?>
+                <?php foreach ($related_news as $rel): ?>
+                    <a href="<?= htmlspecialchars($related_link_prefix) . (int)$rel['id'] ?>"
+                       class="related-news-item">
+
+                        <i class="bi bi-chevron-right small"></i>
+
+                        <div>
+                            <div class="related-news-title">
+                                <?= htmlspecialchars($rel['title']) ?>
+                            </div>
+                            <div class="related-news-date">
+                                <?= dateToThaiFull($rel['created_at']) ?>
+                            </div>
+                        </div>
+
+                    </a>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
+  </div>
+</div>
 <footer class="main-footer">
     <div class="container">
         <div class="row g-4">
