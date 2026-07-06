@@ -32,6 +32,11 @@ body.dept-page .header-banner {
     top: 38px;
 }
 
+body.dept-page .top-bar .container{
+    height: 38px;
+    display: flex;
+    align-items: center;
+}
 body.dept-page .main-nav {
     top: 142px;
 }
@@ -40,7 +45,8 @@ body.dept-page .main-nav {
     background-color: var(--hosp-orange-dark);
     color: #ffffff;
     font-size: 14px;
-    padding: 8px 0;
+    padding: 0 0;
+    
 }
 
 /* ---------- ส่วนหัวของหน้า ---------- */

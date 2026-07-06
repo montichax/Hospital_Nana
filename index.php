@@ -134,7 +134,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 <div id="siteHeader">
 <div class="top-bar">
     <div class="container d-flex justify-content-between align-items-center flex-wrap">
-        <div><i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 | <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th</div>
+        <div><i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th</div>
         <div class="d-flex align-items-center gap-2">
             <span id="liveClock">กำลังโหลดเวลา...</span>
             <a href="login.php" class="btn btn-sm btn-outline-light">เข้าสู่ระบบ</a>
