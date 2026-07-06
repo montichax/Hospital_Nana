@@ -30,6 +30,9 @@ body.dept-page .top-bar {
 
 body.dept-page .header-banner {
     top: 38px;
+    height: 104px;      /* กำหนดความสูงของแบนเนอร์ */
+    display: flex;
+    align-items: center; /* จัดให้อยู่กึ่งกลางบน-ล่าง */
 }
 
 body.dept-page .top-bar .container{
