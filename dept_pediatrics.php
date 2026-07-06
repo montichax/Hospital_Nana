@@ -125,8 +125,8 @@ function renderAttachments($row) {
 <div class="header-banner">
     <div class="container d-flex align-items-center">
         <a href="index.php" class="text-decoration-none">
-            <div class="bg-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 65px;">
-                <i class="bi bi-hospital text-warning fs-3"></i>
+            <div class="me-3">
+                <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
             </div>
         </a>
         <div>
