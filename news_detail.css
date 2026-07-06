@@ -2,8 +2,18 @@
    news_detail.css — สไตล์เฉพาะหน้ารายละเอียดข่าว (news_detail.php)
    ใช้คู่กับ style.css
    =================================================== */
+:root{
+  --topbar-h: 38px;
+  --header-h: 70px;
+}
 
-body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
+/* ดันทั้งหน้าให้ลงมา */
+body{
+  background-color: #f8f4f0;
+  font-family: "Sarabun", sans-serif;
+  padding-top: 108px;
+
+}
 
 .top-bar { background-color: var(--hosp-orange-dark); color: #fff; font-size: 13px; padding: 7px 0; }
 
@@ -122,4 +132,32 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
     .detail-body { padding: 18px 16px 20px; }
     .detail-title { font-size: 17px; }
     .pdf-embed { height: 380px; }
+}
+.top-bar {
+    background-color: var(--hosp-orange-dark);
+    height: 38px;
+}
+
+.top-bar .container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+/* ===== FIX TOP BAR ===== */
+.top-bar{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+  height: 38px;
+}
+
+/* ===== FIX HEADER ===== */
+.page-header{
+  position: fixed;
+  top: 38px;
+  left: 0;
+  width: 100%;
+  z-index: 1040;
 }

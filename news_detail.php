@@ -143,8 +143,8 @@ function fileIcon($ext) {
 <body>
 
 <div class="top-bar">
-    <div class="container">
-        <i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div><i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th</div>
     </div>
 </div>
 
