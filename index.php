@@ -388,14 +388,14 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
             <div class="link-grid-box mb-4">
                 <div class="row g-0">
                     <div class="col-6 border-end">
-                        <div class="link-grid-item"><i class="bi bi-shield-check text-warning me-2"></i><a href="https://www.tnmc.or.th/">สภาการพยาบาล</a></div>
-                        <div class="link-grid-item"><i class="bi bi-mortarboard-fill text-warning me-2"></i><a href="https://cpg.dms.go.th/" >ระบบสืบค้น CPG</a></div>
-                        <div class="link-grid-item"><i class="bi bi-tablet-landscape text-warning me-2"></i><a href="https://www.ckdoctor.com/?gad_source=1&gad_campaignid=21980229015&gbraid=0AAAAAD1H3YMu4xNuCAv4r1kzu7EDC09jH&gclid=Cj0KCQjwr4jSBhCSARIsAOX1E-IiNEXscz-aLco7ZjmCCFGS4J8SUO5D9ZsC95fT6HW7KfrGGNjY8HgaAt8tEALw_wcB">ระบบ HIS</a></div>
+                        <div class="link-grid-item"><i class="bi bi-shield-check text-warning me-2"></i><a href="https://www.tnmc.or.th/" target="_blank" rel="noopener noreferrer">สภาการพยาบาล</a></div>
+                        <div class="link-grid-item"><i class="bi bi-mortarboard-fill text-warning me-2"></i><a href="https://cpg.dms.go.th/" target="_blank" rel="noopener noreferrer">ระบบสืบค้น CPG</a></div>
+                        <div class="link-grid-item"><i class="bi bi-tablet-landscape text-warning me-2"></i><a href="https://www.ckdoctor.com/?gad_source=1&gad_campaignid=21980229015&gbraid=0AAAAAD1H3YMu4xNuCAv4r1kzu7EDC09jH&gclid=Cj0KCQjwr4jSBhCSARIsAOX1E-IiNEXscz-aLco7ZjmCCFGS4J8SUO5D9ZsC95fT6HW7KfrGGNjY8HgaAt8tEALw_wcB" target="_blank" rel="noopener noreferrer">ระบบ HIS</a></div>
                     </div>
                     <div class="col-6">
-                        <div class="link-grid-item"><i class="bi bi-heart-pulse-fill text-danger me-2"></i><a href="https://www.dms.go.th/?StartWeb=1">กรมการแพทย์</a></div>
-                        <div class="link-grid-item"><i class="bi bi-bar-chart-line-fill text-warning me-2"></i><a href="https://spd.moph.go.th/kpi-template-%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%8A%E0%B8%B5%E0%B9%89%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%A3%E0%B8%A7%E0%B8%87%E0%B8%AA%E0%B8%B2%E0%B8%98%E0%B8%B2/" >รายงาน KPI</a></div>
-                        <div class="link-grid-item"><i class="bi bi-file-earmark-medical-fill text-warning me-2"></i><a href="https://intranet.dla.go.th/km/km.do">คลังความรู้ KM</a></div>
+                        <div class="link-grid-item"><i class="bi bi-heart-pulse-fill text-danger me-2"></i><a href="https://www.dms.go.th/?StartWeb=1" target="_blank" rel="noopener noreferrer">กรมการแพทย์</a></div>
+                        <div class="link-grid-item"><i class="bi bi-bar-chart-line-fill text-warning me-2"></i><a href="https://spd.moph.go.th/kpi-template-%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%8A%E0%B8%B5%E0%B9%89%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%A3%E0%B8%A7%E0%B8%87%E0%B8%AA%E0%B8%B2%E0%B8%98%E0%B8%B2/" target="_blank" rel="noopener noreferrer">รายงาน KPI</a></div>
+                        <div class="link-grid-item"><i class="bi bi-file-earmark-medical-fill text-warning me-2"></i><a href="https://intranet.dla.go.th/km/km.do" target="_blank" rel="noopener noreferrer">คลังความรู้ KM</a></div>
                     </div>
                 </div>
             </div>
@@ -438,10 +438,10 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
             <div class="col-md-4">
                 <h5><i class="bi bi-link-45deg"></i> ลิงก์ที่เกี่ยวข้อง</h5>
                 <ul class="small opacity-80">
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://moph.go.th/">กระทรวงสาธารณสุข</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.tnmc.or.th/">สภาการพยาบาล</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.dms.go.th/?StartWeb=1">กรมการแพทย์</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.ha.or.th/TH/Home/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81">สรพ. (HA)</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="https://moph.go.th/" target="_blank" rel="noopener noreferrer">กระทรวงสาธารณสุข</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.tnmc.or.th/" target="_blank" rel="noopener noreferrer">สภาการพยาบาล</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.dms.go.th/?StartWeb=1" target="_blank" rel="noopener noreferrer">กรมการแพทย์</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.ha.or.th/TH/Home/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81" target="_blank" rel="noopener noreferrer">สรพ. (HA)</a></li>
                 </ul>
             </div>
         </div>

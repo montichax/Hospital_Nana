@@ -377,7 +377,10 @@ body.dept-page .main-nav {
         color: var(--hosp-orange-dark) !important;
     }
 }
-
+.main-nav .nav-link.active {
+    background: #fff !important;
+    color: var(--hosp-orange-dark) !important;
+}
 /* Dropdown ของเมนูแผนก: กว้างพอสำหรับชื่อเอกสาร */
 .dept-nav-dropdown {
     min-width: 320px;
