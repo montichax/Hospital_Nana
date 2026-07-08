@@ -307,6 +307,24 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
     </div>
 </div>
 
+<div class="container-fluid my-4">
+    <div class="calendar-container">
+        <div class="block-header mb-3">
+            <span><i class="bi bi-calendar-event-fill "></i> ปฏิทินกิจกรรม</span>
+        </div>
+
+        <div class="border rounded bg-white shadow-sm overflow-hidden mb-4" style="height: 600px;">
+            <iframe
+                src="https://www.appsheet.com/start/YOUR_APP_ID#view=YOUR_CALENDAR_VIEW"
+                width="100%"
+                height="100%"
+                style="border: none;"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+</div>
+
 <div class="container my-4">
     <div class="row">
         <div class="col-lg-8 col-md-12">
@@ -346,6 +364,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
         </div>
     </div>
 </div>
+
 
 <footer class="main-footer">
     <div class="container">
