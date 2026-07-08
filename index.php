@@ -164,18 +164,6 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                 <a class="nav-link active" href="#"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
 
                 <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        เกี่ยวกับกลุ่มงาน
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างองค์กร</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> ทำเนียบผู้บริหาร</a></li>
-                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service Profile</a></li>
-                    </ul>
-                </div>
-
-                <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="deptDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         หอผู้ป่วย/หน่วยงาน
                     </a>
@@ -196,15 +184,39 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                         <?php endif; ?>
                     </ul>
                 </div>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        เกี่ยวกับกลุ่มงาน
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> ทำเนียบพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <!-- <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service Profile</a></li> -->
+                    </ul>
+                </div>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         งานบริหาร
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                        <li><a class="dropdown-item" href="#">แผนงาน / โครงงาน</a></li>
-                        <li><a class="dropdown-item" href="#">ระเบียบ / ข้อบังคับ</a></li>
-                        <li><a class="dropdown-item" href="#">ข้อมูลงานบริหาร</a></li>
+                        <li><a class="dropdown-item" href="#">โครงสร้างบริหาร</a></li>
+                        <li><a class="dropdown-item" href="#">คู่มือบริหาร</a></li>
+                        <li><a class="dropdown-item" href="#">แผนยุทธศาสตร์การพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="#">แผนพัฒนาบุคลากร</a></li>
+                        <li><a class="dropdown-item" href="#">บริหารความเสี่ยง</a></li>
+                        <li><a class="dropdown-item" href="#">จริยธรรมทางการพยาบาล</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        งานบริการ
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="#">ผลการนิเทศ</a></li>
                     </ul>
                 </div>
 
@@ -213,10 +225,8 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                         งานวิชาการ
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
-                        <li><a class="dropdown-item" href="#">คลังความรู้ / KM</a></li>
-                        <li><a class="dropdown-item" href="#">แนวปฎิบัติการพยาบาล (CPG)</a></li>
-                        <li><a class="dropdown-item" href="#">งานวิจัย / R2R</a></li>
-                        <li><a class="dropdown-item" href="#">อบรม / สัมมนา</a></li>
+                        <li><a class="dropdown-item" href="#">Data set</a></li>
+                        <li><a class="dropdown-item" href="#">เอกสารดาวน์โหลด</a></li>
                     </ul>
                 </div>
 
@@ -225,9 +235,30 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                         คุณภาพการพยาบาล
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
-                        <li><a class="dropdown-item" href="#">ตัวชี้วัดคุณภาพ (KPI)</a></li>
-                        <li><a class="dropdown-item" href="#">Patient Safety</a></li>
-                        <li><a class="dropdown-item" href="#">IC / การป้องกันการติดเชื้อ</a></li>
+                        <li><a class="dropdown-item" href="#">ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="#">Service profile</a></li>
+                        <li><a class="dropdown-item" href="#">CNPG</a></li>
+                        <li><a class="dropdown-item" href="#">wi</a></li>
+                        <li><a class="dropdown-item" href="#">วิจัย</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        งานสารสนเทศ
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
+                        <li><a class="dropdown-item" href="#">อัตรากำลัง</a></li>
+                        <li><a class="dropdown-item" href="#">ภาระงาน</a></li>
+                    </ul>
+                </div>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        ข่าวประชาสัมพันธ์
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
+                        <li><a class="dropdown-item" href="#">ข่าวสาร</a></li>
+                        <li><a class="dropdown-item" href="#">รายงานการประชุม</a></li>
                     </ul>
                 </div>
 
