@@ -254,7 +254,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                 </div>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        ข่าวประชาสัมพันธ์
+                        ข่าวประชาสัมพันธ์000001
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
                         <li><a class="dropdown-item" href="#">ข่าวสาร</a></li>
