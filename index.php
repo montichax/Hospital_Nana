@@ -262,7 +262,6 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                     </ul>
                 </div>
 
-                <a class="nav-link" href="#">ติดต่อเรา</a>
             </div>
         </div>
     </div>
