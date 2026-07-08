@@ -186,8 +186,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
                 </div>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                         <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน
-                    </a>
+                    <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน</a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> ทำเนียบพยาบาล</a></li>
@@ -199,8 +198,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร
-                    </a>
+                    <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร</a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-diagram-3 me-2"></i>โครงสร้างบริหาร</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-book me-2"></i>คู่มือบริหาร</a></li>
@@ -213,8 +211,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ
-                    </a>
+                    <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ</a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-database me-2"></i> Data set</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-arrow-down me-2"></i> เอกสารดาวน์โหลด</a></li>    
@@ -223,8 +220,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                     <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล
-                    </a>
+                     <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล</a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up-arrow me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-file-medical me-2"></i> Service profile</a></li>
@@ -236,8 +232,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="informationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                     <i class="bi bi-lightbulb-fill me-1"></i>งานสารสนเทศ
-                    </a>
+                     <i class="bi bi-lightbulb-fill me-1"></i>งานสารสนเทศ</a>
                     <ul class="dropdown-menu" aria-labelledby="informationDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-people-fill me-2"></i> อัตรากำลัง</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-bar-chart-line me-2"></i> ภาระงาน</a></li>
@@ -246,8 +241,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์
-                    </a>
+                    <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์</a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-newspaper me-2"></i> ข่าวสาร</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-2"></i> รายงานการประชุม</a></li>
