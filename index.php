@@ -97,6 +97,15 @@ $fallback_banners = [
 $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 ?>
 
+$stmt = $conn->query("
+SELECT *
+FROM home_slides
+WHERE is_active = 1
+ORDER BY sort_order,id
+");
+
+$homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -130,6 +139,7 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
         }
     </style>
 </head>
+
 <body class="home-page">
 <div id="siteHeader">
 <div class="top-bar">
@@ -306,21 +316,69 @@ $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
         " วิสัยทัศน์: กลุ่มงานการพยาบาลที่มีคุณภาพ มาตรฐาน เป็นที่ไว้วางใจของผู้รับบริการ ภายใต้หลักธรรมาภิบาล เพื่อสุขภาวะที่ดีของประชาชน "
     </div>
 </div>
-
-<div class="container-fluid my-4">
-    <div class="calendar-container">
-        <div class="block-header mb-3">
-            <span><i class="bi bi-calendar-event-fill "></i> ปฏิทินกิจกรรม</span>
+<!-- =======ประชาสัมพันธ์========== -->
+<div class="container-fluid my-5">
+    <div class="news-frame">
+        <div class="news-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark mb-0"><i class="bi bi-megaphone-fill text-danger"></i> ข่าวประชาสัมพันธ์</h3>
+                <a href="all_news.php" class="text-dark fw-semibold text-decoration-none"> ดูทั้งหมด › </a>
+            </div>
+            <?php if(empty($news_list)): ?>
+                <div class="text-center py-5">ไม่มีข่าวประชาสัมพันธ์</div>
+            <?php else: ?>
+            <?php
+                $newsChunks = array_chunk($news_list,4);
+            ?>
+            <div id="newsCarousel"  class="carousel slide" data-bs-ride="false" data-bs-interval="false">
+                <div class="carousel-inner">
+                    <?php foreach($newsChunks as $page=>$chunk): ?>
+                    <div class="carousel-item <?= $page==0?'active':'' ?>">
+                        <div class="row gx-4 gy-4 justify-content-center">
+                            <?php foreach($chunk as $news):
+                                $img = !empty($news['image_name'])
+                                    ? "uploads/".$news['image_name']
+                                    : "uploads/default.jpg";
+                            ?>
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+                                <a href="news_detail.php?id=<?= $news['id'] ?>">
+                                    <img src="<?= htmlspecialchars($img) ?>" class="news-slide-img" alt="<?= htmlspecialchars($news['title']) ?>">
+                                </a>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="news-pagination">
+                <?php foreach($newsChunks as $index=>$chunk): ?>
+                    <a href="#" class="page-dot <?= $index==0?'active':'' ?>" data-slide="<?= $index ?>"><?= $index+1 ?></a>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+            
         </div>
+    </div>
+</div>
 
-        <div class="border rounded bg-white shadow-sm overflow-hidden mb-4" style="height: 600px;">
-            <iframe
-                src="https://www.appsheet.com/start/YOUR_APP_ID#view=YOUR_CALENDAR_VIEW"
-                width="100%"
-                height="100%"
-                style="border: none;"
-                allowfullscreen>
-            </iframe>
+<!-- =======ตารางปฏิบัติงาน========== -->
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="block-header mb-3">
+                <span class="fs-5 fw-bold"><i class="bi bi-calendar-event-fill "></i> ตารางปฏิบัติงาน</span>
+            </div>
+            <!-- กล่องสำหรับแสดงผล AppSheet -->
+            <div class="border rounded bg-white shadow-sm overflow-hidden mb-4" style="height: 600px;">
+                <iframe 
+                    src="https://calendar.google.com/calendar/embed?src=c_9ac506c7372c44aec4f67376f73f952e35c158cf08222472e750f8ce147b33d7%40group.calendar.google.com&ctz=Asia%2FBangkok" 
+                    width="100%" 
+                    height="100%" 
+                    style="border: none;" 
+                    allowfullscreen>
+                </iframe>
+            </div>
         </div>
     </div>
 </div>
@@ -424,11 +482,34 @@ window.addEventListener('scroll', function() {
     document.getElementById('scrollTopBtn').classList.toggle('show', window.scrollY > 300);
 }, { passive: true });
 
+const carouselElement = document.querySelector('#newsCarousel');
 
+const carousel = new bootstrap.Carousel(carouselElement,{
+    interval:false,
+    ride:false,
+    wrap:false
+});
+    document.querySelectorAll('.page-dot').forEach(dot=>{
+        dot.addEventListener('click',function(e){
+            e.preventDefault();
+            let page=this.dataset.slide;
+            carousel.to(page);
+        });
+});
+    carouselElement.addEventListener('slid.bs.carousel',function(e){
+        document.querySelectorAll('.page-dot').forEach(dot=>{
+            dot.classList.remove('active');
+        });
+        document
+            .querySelector('.page-dot[data-slide="'+e.to+'"]')
+            .classList.add('active');
+
+});
 </script>
 
 <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับด้านบน">
     <i class="bi bi-chevron-up"></i>
 </button>
+
 </body>
 </html>

@@ -159,3 +159,11 @@ INSERT INTO `users` (`id`, `username`, `password_hash`, `role`, `department_id`,
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
 
+CREATE TABLE `home_slides` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`image_name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`sort_order` INT NOT NULL DEFAULT '1',
+	`is_active` TINYINT(1) NULL DEFAULT '1',
+	`created_at` TIMESTAMP NULL DEFAULT (now()),
+	PRIMARY KEY (`id`) USING BTREE
+)
