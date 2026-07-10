@@ -306,7 +306,7 @@ body{
 
 /* ================= ข่าวประชาสัมพันธ์ ================= */
 .news-frame{
-    width:80%;
+    width:90%;
     margin:0 auto;
 }
 
@@ -314,29 +314,23 @@ body{
     width:100%;
 }
 
-.news-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:25px;
-}
-
 .news-item{
     width:100%;
 }
 
 .news-slide-img{
-    width:100%;
-    height:400px;
+    width:98%;
+    height:430px;
     object-fit:cover;
-    border-radius:12px;
+    border-radius:7px;
     display:block;
     transition:.3s;
-    box-shadow:0 8px 20px rgba(0,0,0,.15);
+    box-shadow:0 8px 20px rgba(168, 168, 168, 0.15);
 }
 
 .news-slide-img:hover{
     transform:translateY(-5px);
-    box-shadow:0 14px 35px rgba(0,0,0,.25);
+    box-shadow:0 14px 35px rgba(179, 179, 179, 0.25);
 }
 /* ---------- เมนูด้านล่าง ---------- */
 .news-pagination{
@@ -357,16 +351,15 @@ body{
     top:0;
     left:50%;
     transform:translateX(-50%);
-    width:350px;
+    width:200px;
     height:3px;
     background:#2d6cdf;
     border-radius:5px;
 }
 
 .page-dot{
-
-    width:46px;
-    height:46px;
+    width:30px;
+    height:30px;
     border-radius:50%;
     background:#eef4ff;
     color:#7a889e;
@@ -392,25 +385,21 @@ body{
 }
 /* Responsive */
 @media (max-width:992px){
-
     .news-grid{
         grid-template-columns:repeat(2,1fr);
     }
 
     .news-slide-img{
-        height:280px;
+        height:240px;
     }
-
 }
 
 @media (max-width:576px){
-
     .news-grid{
         grid-template-columns:1fr;
     }
 
     .news-slide-img{
-        height:220px;
+        height:180px;
     }
-
 }
