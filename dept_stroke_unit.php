@@ -136,70 +136,139 @@ function renderAttachments($row) {
     </div>
 </div>
 
-<nav class="navbar navbar-expand-lg main-nav dept-nav p-0 shadow-sm">
+<nav class="navbar navbar-expand-lg main-nav p-0 shadow-sm" id="mainNav">
     <div class="container">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#deptNavContent" aria-label="เปิดเมนู">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="เปิดเมนู">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="deptNavContent">
+        <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-                <?php foreach ($menuGroups as $gi => $group): ?>
-                    <?php
-                    $groupItems = [];
-                    foreach ($group['sections'] as $sec) {
-                        if (!empty($bySection[$sec])) {
-                            foreach ($bySection[$sec] as $it) { $it['_sec_label'] = $sectionLabels[$sec] ?? $sec; $groupItems[] = $it; }
-                        }
-                    }
-                    ?>
-                    <?php if (in_array('knowledge', $group['sections'])): ?>
-                        <div class="nav-item">
-                            <a class="nav-link py-3 <?= !isset($_GET['id']) && !isset($_GET['show_personnel']) ? 'active' : '' ?>" href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>">
-                                <i class="bi <?= $group['icon'] ?> me-1"></i>
-                                <span><?= htmlspecialchars($group['label']) ?></span>
-                            </a>
-                        </div>
-                    <?php else: ?>
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle py-3" href="#" id="grp<?= $gi ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi <?= $group['icon'] ?> me-1"></i>
-                            <span><?= htmlspecialchars($group['label']) ?></span>
-                        </a>
-                        <ul class="dropdown-menu dept-nav-dropdown" aria-labelledby="grp<?= $gi ?>">
-                            <?php if (empty($groupItems)): ?>
-                                <li><span class="dropdown-item-text dept-nav-empty">— ยังไม่มีข้อมูล —</span></li>
-                            <?php else: ?>
-                                <?php
-                                $personnel_shown = false;
-                                foreach ($groupItems as $it):
-                                    if ($it['section'] === 'personnel'):
-                                        if ($personnel_shown) continue;
-                                        $personnel_shown = true;
-                                ?>
-                                    <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="dept_stroke_unit.php?show_personnel=1">
-                                            <i class="bi bi-people-fill"></i>
-                                            <span>ทำเนียบบุคลากร</span>
-                                        </a>
-                                    </li>
-                                <?php else: ?>
-                                    <li>
-                                        <a class="dropdown-item dept-nav-leaf" href="dept_stroke_unit.php?id=<?= (int)$it['id'] ?>">
-                                            <i class="bi bi-file-earmark-text"></i>
-                                            <span><?= htmlspecialchars($it['title']) ?></span>
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
+                <a class="nav-link" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                        <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
+                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
+                        <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
+                        <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="academicDropdown">
+                        <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
+                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
+                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
+                        <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="infoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-lightbulb-fill me-1"></i>งานสารสนเทศ
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="infoDropdown">
+                        <li><a class="dropdown-item" href="staffing.php"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
+                        <li><a class="dropdown-item" href="workload.php"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell-fill me-1"></i>ข่าวสารประชาสัมพันธ์
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="newsDropdown">
+                        <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
+                        <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
+                    </ul>
+                </div>
+                <a href="index.php" class="btn-back nav-btn-back ms-auto"><i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าหลัก</a>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- แบนเนอร์สไลด์โชว์ของแผนก -->
+<?php if(!empty($slides)): ?>
+<div class="dept-hero-wrap">
+    <div id="deptHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+            <?php foreach($slides as $i => $slide):
+                $isActive = ($i==0)?'active':'';
+                $bgUrl = 'uploads/' . htmlspecialchars($slide['image_name']);
+                $bgStyle = "background-image:url('{$bgUrl}');";
+                $slide_link = htmlspecialchars($slide['link_url'] ?? '');
+                $slide_sub  = htmlspecialchars($slide['subtitle'] ?? '');
+            ?>
+            <div class="carousel-item <?= $isActive ?>" style="<?= $bgStyle ?>">
+                <div class="carousel-overlay"></div>
+                <div class="carousel-caption-custom">
+                    <?php if($slide_sub): ?>
+                        <p class="mb-4">
+                            <?= $slide_sub ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if($slide_link): ?>
+                        <a href="<?= $slide_link ?>"
+                           target="_blank"
+                           class="btn-readmore">
+                            อ่านเพิ่มเติม
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if(count($slides)>1): ?>
+        <button class="carousel-control-prev" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- เนื้อหาหลักของแผนก -->
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered p-0" style="background:rgba(0,0,0,0.92);">
+        <div class="modal-content border-0" style="background:transparent;">
+            <div class="modal-body d-flex align-items-center justify-content-center p-2 position-relative" style="min-height:100vh;">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="font-size:1.4rem; z-index:10;"></button>
+                <img id="lightboxImg" src="" alt="" style="max-width:100%; max-height:95vh; object-fit:contain; border-radius:6px; display:none;">
+                <embed id="lightboxPdf" src="" type="application/pdf" style="width:96vw; height:94vh; border-radius:6px; display:none;">
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="dept-page-header">
     <div class="container d-flex justify-content-end align-items-center">

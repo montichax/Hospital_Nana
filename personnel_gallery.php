@@ -1,12 +1,12 @@
 <?php
-// หน้าอยู่ระหว่างการจัดทำ — IC / การป้องกันการติดเชื้อ
+// หน้าอยู่ระหว่างการจัดทำ — แผนยุทธศาสตร์การพยาบาล
 ?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IC / การป้องกันการติดเชื้อ - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
+    <title>แผนยุทธศาสตร์การพยาบาล - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,7 +118,7 @@
 
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h1><i class="bi bi-virus me-2"></i>IC / การป้องกันการติดเชื้อ</h1>
+        <h1><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</h1>
     </div>
 </div>
 
@@ -127,7 +127,7 @@
         <div class="col-lg-9 col-xl-8" id="generalContent">
             <div class="empty-state">
         <i class="bi bi-cone-striped"></i>
-        <p>หน้า "IC / การป้องกันการติดเชื้อ" อยู่ระหว่างการจัดทำ</p>
+        <p>หน้า "แผนยุทธศาสตร์การพยาบาล" อยู่ระหว่างการจัดทำ</p>
         <p class="small">ขออภัยในความไม่สะดวก กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง</p>
     </div>
         </div>
@@ -169,7 +169,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>window.CONTENT_SECTION = 'infection_control';</script>
+<script>window.CONTENT_SECTION = 'plans_projects';</script>
 <script src="assets/js/api-config.js"></script>
 <script src="assets/js/dept-context.js"></script>
 <script src="assets/js/general-content.js"></script>

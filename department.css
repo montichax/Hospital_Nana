@@ -264,6 +264,24 @@ body.dept-page .main-nav {
 .dc-btn-grey:hover { background-color: #5a6268; }
 .dc-btn-light { background-color: #efe5da; color: var(--hosp-orange-dark); }
 .dc-btn-light:hover { background-color: #e6d8c8; color: var(--hosp-orange-dark); }
+.btn-back {
+    background-color: #fff;
+    color: var(--hosp-orange-dark);
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    
+}
+.btn-back:hover { background-color: #ffe8d6; color: var(--hosp-orange-dark); }
+
+.main-nav .nav-btn-back { align-self: center; margin: 8px 8px; }
 
 .dc-body {
     font-size: 15px;
@@ -624,4 +642,34 @@ body.dept-page .main-nav {
 
 .modal-backdrop {
     z-index: 1050;
+}
+
+.dept-hero-wrap{
+    width:100%;
+    height:400px;
+}
+
+#deptHeroCarousel,
+#deptHeroCarousel .carousel-inner,
+#deptHeroCarousel .carousel-item{
+    height:400px;
+}
+
+#deptHeroCarousel .carousel-item{
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.carousel-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.35);
+}
+
+.carousel-caption-custom{
+    position:absolute;
+    bottom:50px;
+    left:8%;
+    color:#fff;
 }

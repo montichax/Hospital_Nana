@@ -45,17 +45,16 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-                <a class="nav-link" href="index.php"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
+                <a class="nav-link" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
-                        <li><a class="dropdown-item" href="vision_mission.php"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
-                        <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบพยาบาล</a></li>
                         <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
                         <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</a></li>
                     </ul>
                 </div>
 
@@ -65,9 +64,6 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
-                        <li><a class="dropdown-item" href="regulations.php"><i class="bi bi-journal-bookmark-fill me-2"></i> คู่มือบริหาร</a></li>
-                        <li><a class="dropdown-item" href="plans_projects.php"><i class="bi bi-clipboard-data-fill me-2"></i> แผนยุทธศาสตร์การพยาบาล</a></li>
-                        <li><a class="dropdown-item" href="staff_dev_plan.php"><i class="bi bi-graph-up-arrow me-2"></i> แผนพัฒนาบุคลากร</a></li>
                         <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
                         <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
                     </ul>
@@ -79,7 +75,6 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
                         <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
-                        <li><a class="dropdown-item" href="downloads.php"><i class="bi bi-file-earmark-arrow-down-fill me-2"></i> เอกสารดาวน์โหลด</a></li>
                     </ul>
                 </div>
 
@@ -88,7 +83,7 @@
                         <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
-                        <li><a class="dropdown-item active" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
                         <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
                         <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
                         <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
@@ -111,7 +106,7 @@
                         <i class="bi bi-bell-fill me-1"></i>ข่าวสารประชาสัมพันธ์
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
-                        <li><a class="dropdown-item" href="all_news.php"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสาร</a></li>
+                        <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
                         <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
                     </ul>
                 </div>
