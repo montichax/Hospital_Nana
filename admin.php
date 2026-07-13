@@ -30,7 +30,7 @@ if ($is_dept_admin) {
     // บังคับ dept_id ให้เป็นแผนกตัวเอง (ป้องกันแอบเข้าแผนกอื่นด้วย ?dept_id=)
     $_GET['dept_id'] = $user_dept_id;
 } else {
-    $active_tab = $_GET['tab'] ?? 'news';
+    $active_tab = $_GET['tab'] ?? 'index_page';
 }
 
 // ฟังก์ชันตรวจสิทธิ์ก่อนแก้ department_contents
@@ -63,6 +63,28 @@ function parseFileNames($fileData) {
     return [];
 }
 
+// สร้าง <option> ของ dropdown "หมวดข้อมูล" — รวมหมวดของ "กลุ่มงาน/หน้าหลักที่เลือกไว้ด้านบน" (primary) + หน้าเนื้อหาทั่วไป (24 หน้า) ไว้ในที่เดียว
+// $primary_sections/$primary_label = หมวดของแผนก (8 หมวด) หรือหมวดของหน้าหลัก (6 หมวด) แล้วแต่ว่า dropdown "กลุ่มงาน" ด้านบนเลือกอะไรไว้
+// $include_all_option = false เมื่อใช้กับฟอร์ม "เพิ่มข้อมูล" (ต้องเลือกหมวดจริงเสมอ ไม่มี "ทั้งหมด")
+function renderSectionOptions($primary_sections, $primary_label, $general_content_sections, $selected_dept_section, $selected_is_general, $selected_general_slug, $is_main_admin, $include_all_option = true) {
+    $html = $include_all_option ? '<option value="">— ทั้งหมดของแผนกนี้ —</option>' : '';
+    $html .= '<optgroup label="' . htmlspecialchars($primary_label) . '">';
+    foreach ($primary_sections as $key => $label) {
+        $sel = ($selected_dept_section === $key) ? 'selected' : '';
+        $html .= '<option value="' . htmlspecialchars($key) . '" ' . $sel . '>' . htmlspecialchars($label) . '</option>';
+    }
+    $html .= '</optgroup>';
+    if ($is_main_admin) {
+        $html .= '<optgroup label="หน้าเนื้อหาทั่วไป">';
+        foreach ($general_content_sections as $slug => $label) {
+            $sel = ($selected_is_general && $selected_general_slug === $slug) ? 'selected' : '';
+            $html .= '<option value="g_' . htmlspecialchars($slug) . '" ' . $sel . '>' . htmlspecialchars($label) . '</option>';
+        }
+        $html .= '</optgroup>';
+    }
+    return $html;
+}
+
 $department_content_sections = [
     'knowledge'       => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',
     'structure'       => 'โครงสร้างการบริหารงาน',
@@ -74,10 +96,82 @@ $department_content_sections = [
     'wi'              => 'WI / SP'
 ];
 
+// หมวดเนื้อหา "ทั่วไป" (ไม่ผูกกับแผนก) — 1 หมวด ต่อ 1 หน้าเว็บกลางขององค์กร (key = ชื่อไฟล์ไม่รวม .php)
+$general_content_sections = [
+    'vision_mission'    => 'วิสัยทัศน์ / พันธกิจ',
+    'nurse_roster'      => 'ทำเนียบพยาบาล',
+    'executives'        => 'ทำเนียบหัวหน้ากลุ่มงาน',
+    'ward_heads'        => 'ทำเนียบหัวหน้างาน',
+    'org_structure'     => 'โครงสร้างบริหาร',
+    'regulations'       => 'คู่มือบริหาร',
+    'plans_projects'    => 'แผนยุทธศาสตร์การพยาบาล',
+    'staff_dev_plan'    => 'แผนพัฒนาบุคลากร',
+    'risk_management'   => 'บริหารความเสี่ยง',
+    'nursing_ethics'    => 'จริยธรรมการพยาบาล',
+    'dataset'           => 'Data set',
+    'downloads'         => 'เอกสารดาวน์โหลด',
+    'kpi'               => 'ตัวชี้วัดคุณภาพ',
+    'service_profile'   => 'Service profile',
+    'cpg'               => 'CNPG',
+    'wi'                => 'WI',
+    'research'          => 'วิจัย',
+    'staffing'          => 'อัตรากำลัง',
+    'workload'          => 'ภาระงาน',
+    'meeting_reports'   => 'รายงานการประชุม',
+    'infection_control' => 'IC / การป้องกันการติดเชื้อ',
+    'knowledge_base'    => 'คลังความรู้ / KM',
+    'patient_safety'    => 'Patient Safety',
+    'training'          => 'อบรม / สัมมนา',
+];
+
+// หมวดเนื้อหา "หน้าหลัก (index)" — เก็บใน department_contents โดย department_id = NULL, section ขึ้นต้นด้วย "idx_"
+// จัดกลุ่มตามเมนูหลักของ index.php — ใช้ $index_page_groups สำหรับ <optgroup> ใน dropdown
+$index_page_groups = [
+    'เกี่ยวกับกลุ่มงาน' => [
+        'idx_vision_mission' => 'วิสัยทัศน์ / พันธกิจ',
+        'idx_nurse_roster'   => 'ทำเนียบพยาบาล',
+        'idx_executives'     => 'ทำเนียบหัวหน้ากลุ่มงาน',
+        'idx_ward_heads'     => 'ทำเนียบหัวหน้างาน',
+    ],
+    'งานบริหาร' => [
+        'idx_org_structure'   => 'โครงสร้างบริหาร',
+        'idx_regulations'     => 'คู่มือบริหาร',
+        'idx_plans_projects'  => 'แผนยุทธศาสตร์การพยาบาล',
+        'idx_staff_dev_plan'  => 'แผนพัฒนาบุคลากร',
+        'idx_risk_management' => 'บริหารความเสี่ยง',
+        'idx_nursing_ethics'  => 'จริยธรรมการพยาบาล',
+    ],
+    'งานวิชาการ' => [
+        'idx_dataset'   => 'Data set',
+        'idx_downloads' => 'เอกสารดาวน์โหลด',
+    ],
+    'คุณภาพการพยาบาล' => [
+        'idx_kpi'             => 'ตัวชี้วัดคุณภาพ',
+        'idx_service_profile' => 'Service profile',
+        'idx_cpg'             => 'CNPG',
+        'idx_wi'              => 'WI',
+        'idx_research'        => 'วิจัย',
+    ],
+    'งานสารสนเทศ' => [
+        'idx_staffing'  => 'อัตรากำลัง',
+        'idx_workload'  => 'ภาระงาน',
+    ],
+    'ข่าวสารประชาสัมพันธ์' => [
+        'idx_news'            => 'ข่าวสาร',
+        'idx_meeting_reports' => 'รายงานการประชุม',
+    ],
+];
+// Flatten สำหรับ lookup
+$index_page_sections = [];
+foreach ($index_page_groups as $items) {
+    $index_page_sections = array_merge($index_page_sections, $items);
+}
+
 // สร้างตาราง department_contents ถ้ายังไม่มี
+// department_id เป็น NULL ได้ — ใช้เก็บ "เนื้อหาทั่วไป" (ไม่ผูกกับแผนกใดแผนกหนึ่ง) สำหรับหน้าเนื้อหากลางขององค์กร
 $conn->exec("CREATE TABLE IF NOT EXISTS department_contents (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    department_id INT NOT NULL,
+    department_id INT NULL,
     section VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NULL,
@@ -89,12 +183,17 @@ $conn->exec("CREATE TABLE IF NOT EXISTS department_contents (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
 try {
+    $conn->exec("ALTER TABLE department_contents MODIFY department_id INT NULL");
+} catch (Exception $e) { }
+
+try {
     $conn->exec("ALTER TABLE department_contents MODIFY file_name TEXT NULL");
 } catch (Exception $e) { }
 
 // สร้างตาราง banners ถ้ายังไม่มี
 $conn->exec("CREATE TABLE IF NOT EXISTS banners (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    department_id INT NULL,
     title VARCHAR(255) NOT NULL,
     subtitle TEXT NULL,
     image_name VARCHAR(500) NULL,
@@ -103,6 +202,10 @@ $conn->exec("CREATE TABLE IF NOT EXISTS banners (
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+try {
+    $conn->exec("ALTER TABLE banners ADD COLUMN department_id INT NULL AFTER id");
+} catch (Exception $e) { }
 
 // ---------- helpers ----------
 function uploadAdminFile($fieldName, $prefix, $oldFile = '') {
@@ -221,6 +324,28 @@ if ($is_main_admin) {
     }
 }
 
+// [0.5] หน้าหลัก (index_page) — เก็บใน department_contents โดย department_id = NULL
+if (isset($_POST['action_index_page'])) {
+    $idx_section  = $_POST['section'] ?? 'idx_news';
+    if (!isset($index_page_sections[$idx_section])) $idx_section = 'idx_news';
+    $sort_order   = max(1, (int)($_POST['sort_order'] ?? 1));
+    $link_url     = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
+    $file_name    = uploadMultipleAdminFiles('content_file', 'idx', $_POST['old_file'] ?? '');
+
+    if ($_POST['action_index_page'] == 'create') {
+        $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (NULL, :section, :title, :content, :file_name, :link_url, :sort_order)");
+        $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
+    } elseif ($_POST['action_index_page'] == 'update') {
+        $stmt = $conn->prepare("UPDATE department_contents SET section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id AND department_id IS NULL");
+        $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+    }
+    header("Location: admin.php?tab=index_page&idx_section=" . urlencode($idx_section)); exit;
+}
+if (isset($_GET['del_index_page'])) {
+    $conn->prepare("DELETE FROM department_contents WHERE id=:id AND department_id IS NULL")->execute([':id' => (int)$_GET['del_index_page']]);
+    header("Location: admin.php?tab=index_page&idx_section=" . urlencode($_GET['idx_section'] ?? '')); exit;
+}
+
 // [1] ข่าว
 if (isset($_POST['action_news'])) {
     $file_name    = uploadMultipleAdminFiles('image', 'news', $_POST['old_image'] ?? 'default.jpg');
@@ -260,23 +385,36 @@ if (isset($_GET['del_dept'])) {
 }
 
 // [3] ข้อมูลรายกลุ่มงาน (dept_contents)
+// section ที่ขึ้นต้นด้วย "g_" = หน้าเนื้อหาทั่วไป (ไม่ผูกกับแผนก) เช่น g_vision_mission -> บันทึก department_id เป็น NULL เสมอ
 if (isset($_POST['action_dept_content'])) {
-    $department_id = (int)($_POST['department_id'] ?? 0);
-    // dept admin สามารถแก้ได้เฉพาะแผนกตัวเอง
-    assertDeptAccess($department_id);
-    $section       = $_POST['section'] ?? 'knowledge';
+    $submitted_section = $_POST['section'] ?? 'knowledge';
+    $is_general_submit  = $is_main_admin && strpos($submitted_section, 'g_') === 0 && isset($general_content_sections[substr($submitted_section, 2)]);
+
+    if ($is_general_submit) {
+        $department_id_db = null;
+        $section = substr($submitted_section, 2);
+    } else {
+        $department_id = (int)($_POST['department_id'] ?? 0);
+        // dept admin สามารถแก้ได้เฉพาะแผนกตัวเอง
+        assertDeptAccess($department_id);
+        $department_id_db = $department_id;
+        $section = $submitted_section;
+    }
+
     $sort_order    = max(1, (int)($_POST['sort_order'] ?? 1));
     $link_url      = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
     $file_name     = uploadMultipleAdminFiles('content_file', 'dept_content', $_POST['old_file'] ?? '');
 
     if ($_POST['action_dept_content'] == 'create') {
         $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (:department_id, :section, :title, :content, :file_name, :link_url, :sort_order)");
-        $stmt->execute([':department_id' => $department_id, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
+        $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
     } elseif ($_POST['action_dept_content'] == 'update') {
         $stmt = $conn->prepare("UPDATE department_contents SET department_id=:department_id, section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id");
-        $stmt->execute([':department_id' => $department_id, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+        $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
     }
-    header("Location: admin.php?tab=dept_contents&dept_id=" . $department_id); exit;
+    $redirect_dept    = $is_general_submit ? (int)($_POST['department_id'] ?? 0) : $department_id_db;
+    $redirect_section = $submitted_section; // เก็บ prefix g_ ไว้ตามเดิมถ้ามี เพื่อกลับไปหน้าเดิมที่กำลังกรองอยู่
+    header("Location: admin.php?tab=dept_contents&dept_id=" . $redirect_dept . "&section=" . urlencode($redirect_section)); exit;
 }
 if (isset($_GET['del_dept_content'])) {
     // ตรวจสอบสิทธิ์ก่อนลบ
@@ -284,24 +422,26 @@ if (isset($_GET['del_dept_content'])) {
     $check_stmt->execute([':id' => (int)$_GET['del_dept_content']]);
     $check_row = $check_stmt->fetch(PDO::FETCH_ASSOC);
     if ($check_row) assertDeptAccess($check_row['department_id']);
-    $department_id = (int)($_GET['dept_id'] ?? 0);
+    $redirect_dept    = (int)($_GET['dept_id'] ?? 0);
+    $redirect_section = $_GET['section'] ?? '';
     $conn->prepare("DELETE FROM department_contents WHERE id=:id")->execute([':id' => $_GET['del_dept_content']]);
-    header("Location: admin.php?tab=dept_contents&dept_id=" . $department_id); exit;
+    header("Location: admin.php?tab=dept_contents&dept_id=" . $redirect_dept . "&section=" . urlencode($redirect_section)); exit;
 }
 
 // [4] Banner / Slider
 if (isset($_POST['action_banner'])) {
-    $file_name  = uploadAdminFile('banner_image', 'banner', $_POST['old_image'] ?? '');
-    $is_active  = isset($_POST['is_active']) ? 1 : 0;
-    $sort_order = max(1, (int)($_POST['sort_order'] ?? 1));
-    $link_url   = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
+    $file_name     = uploadAdminFile('banner_image', 'banner', $_POST['old_image'] ?? '');
+    $is_active     = isset($_POST['is_active']) ? 1 : 0;
+    $sort_order    = max(1, (int)($_POST['sort_order'] ?? 1));
+    $link_url      = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
+    $department_id = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
 
     if ($_POST['action_banner'] == 'create') {
-        $stmt = $conn->prepare("INSERT INTO banners (title, subtitle, image_name, link_url, sort_order, is_active) VALUES (:title, :subtitle, :image_name, :link_url, :sort_order, :is_active)");
-        $stmt->execute([':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active]);
+        $stmt = $conn->prepare("INSERT INTO banners (department_id, title, subtitle, image_name, link_url, sort_order, is_active) VALUES (:department_id, :title, :subtitle, :image_name, :link_url, :sort_order, :is_active)");
+        $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active]);
     } elseif ($_POST['action_banner'] == 'update') {
-        $stmt = $conn->prepare("UPDATE banners SET title=:title, subtitle=:subtitle, image_name=:image_name, link_url=:link_url, sort_order=:sort_order, is_active=:is_active WHERE id=:id");
-        $stmt->execute([':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active, ':id' => $_POST['id']]);
+        $stmt = $conn->prepare("UPDATE banners SET department_id=:department_id, title=:title, subtitle=:subtitle, image_name=:image_name, link_url=:link_url, sort_order=:sort_order, is_active=:is_active WHERE id=:id");
+        $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active, ':id' => $_POST['id']]);
     }
     header("Location: admin.php?tab=banners"); exit;
 }
@@ -315,22 +455,57 @@ $news_items         = [];
 $dept_items         = [];
 $dept_content_items = [];
 $banner_items       = [];
+$index_page_items   = [];
 
 $all_depts        = $conn->query("SELECT * FROM departments ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 $selected_dept_id = $is_dept_admin
     ? (int)$user_dept_id
     : (int)($_GET['dept_id'] ?? ($all_depts[0]['id'] ?? 0));
 
-if ($active_tab == 'news') {
+// "หมวดข้อมูล" ที่เลือกไว้ล่าสุด — ใช้กรองตารางด้านล่างด้วย ว่างไว้ = โชว์ทุกหมวดของแผนกที่เลือก (ของเดิม)
+// ค่าที่ขึ้นต้นด้วย "g_" = หน้าเนื้อหาทั่วไป (ไม่ผูกกับแผนก) เช่น g_vision_mission
+$selected_section       = (string)($_GET['section'] ?? '');
+$selected_is_general    = $is_main_admin && strpos($selected_section, 'g_') === 0 && isset($general_content_sections[substr($selected_section, 2)]);
+$selected_general_slug  = $selected_is_general ? substr($selected_section, 2) : '';
+$selected_dept_section  = (!$selected_is_general && $selected_section !== '' && isset($department_content_sections[$selected_section])) ? $selected_section : '';
+
+// --- หมวดที่เลือกของ tab "หน้าหลัก" ---
+$selected_idx_section = (string)($_GET['idx_section'] ?? '');
+$selected_idx_section = isset($index_page_sections[$selected_idx_section]) ? $selected_idx_section : '';
+
+if ($active_tab == 'index_page') {
+    if ($selected_idx_section !== '') {
+        $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id IS NULL AND section = :section ORDER BY sort_order ASC, id DESC");
+        $stmt->execute([':section' => $selected_idx_section]);
+    } else {
+        // แสดงทุกหมวดของหน้าหลัก
+        $idx_keys = array_keys($index_page_sections);
+        $placeholders = implode(',', array_fill(0, count($idx_keys), '?'));
+        $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id IS NULL AND section IN ($placeholders) ORDER BY section ASC, sort_order ASC, id DESC");
+        $stmt->execute($idx_keys);
+    }
+    $index_page_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} elseif ($active_tab == 'news') {
     $news_items = $conn->query("SELECT * FROM news ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 } elseif ($active_tab == 'departments') {
     $dept_items = $conn->query("SELECT * FROM departments ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+} elseif ($active_tab == 'dept_contents' && $selected_is_general) {
+    // เนื้อหาทั่วไปของหน้าที่เลือก (department_id เป็น NULL ในฐานข้อมูล) — ไม่เกี่ยวกับแผนกที่เลือกไว้ด้านบน
+    $stmt = $conn->prepare("SELECT dc.*, NULL AS department_name FROM department_contents dc WHERE dc.department_id IS NULL AND dc.section = :section ORDER BY dc.sort_order ASC, dc.id DESC");
+    $stmt->execute([':section' => $selected_general_slug]);
+    $dept_content_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} elseif ($active_tab == 'dept_contents' && $selected_dept_id > 0 && $selected_dept_section !== '') {
+    // เฉพาะหมวดที่เลือกของแผนกนี้
+    $stmt = $conn->prepare("SELECT dc.*, d.name AS department_name FROM department_contents dc INNER JOIN departments d ON d.id = dc.department_id WHERE dc.department_id = :department_id AND dc.section = :section ORDER BY dc.sort_order ASC, dc.id DESC");
+    $stmt->execute([':department_id' => $selected_dept_id, ':section' => $selected_dept_section]);
+    $dept_content_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } elseif ($active_tab == 'dept_contents' && $selected_dept_id > 0) {
+    // ไม่ได้กรองหมวด -> โชว์ทุกหมวดของแผนกนี้รวมกัน (ของเดิม)
     $stmt = $conn->prepare("SELECT dc.*, d.name AS department_name FROM department_contents dc INNER JOIN departments d ON d.id = dc.department_id WHERE dc.department_id = :department_id ORDER BY dc.section ASC, dc.sort_order ASC, dc.id DESC");
     $stmt->execute([':department_id' => $selected_dept_id]);
     $dept_content_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } elseif ($active_tab == 'banners') {
-    $banner_items = $conn->query("SELECT * FROM banners ORDER BY sort_order ASC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $banner_items = $conn->query("SELECT b.*, d.name AS department_name FROM banners b LEFT JOIN departments d ON d.id = b.department_id ORDER BY b.sort_order ASC, b.id ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 
@@ -343,6 +518,9 @@ if ($active_tab == 'news') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
     <style>
         /* ============================================
@@ -508,8 +686,8 @@ if ($active_tab == 'news') {
     <ul class="nav nav-tabs" id="hospitalTabs">
         <?php if ($is_main_admin): ?>
         <li class="nav-item">
-            <a class="nav-link <?= $active_tab == 'news' ? 'active' : '' ?>" href="?tab=news">
-                <i class="bi bi-megaphone-fill fs-5 icon-news"></i> ข่าวประชาสัมพันธ์
+            <a class="nav-link <?= $active_tab == 'index_page' ? 'active' : '' ?>" href="?tab=index_page">
+                <i class="bi bi-house-door-fill fs-5 icon-news"></i> หน้าหลัก (Index)
             </a>
         </li>
         <?php endif; ?>
@@ -541,74 +719,148 @@ if ($active_tab == 'news') {
 
     <div class="tab-content bg-white p-4 border rounded-bottom shadow-sm">
 
-        <?php if($active_tab == 'news'): ?>
+        <?php if($active_tab == 'index_page'): ?>
         <div>
-            <h5 class="text-hospital mb-3 fw-bold">จัดการข่าวประชาสัมพันธ์</h5>
-            <form action="admin.php?tab=news" method="POST" enctype="multipart/form-data" class="admin-form-container">
-                <input type="hidden" name="action_news" value="create">
-                <div class="row g-2 mb-2">
-                    <div class="col-md-5"><input type="text" name="title" class="form-control" placeholder="หัวข้อข่าว" required></div>
-                    <div class="col-md-3"><input type="text" name="created_at" id="news_date_picker" class="form-control bg-white" placeholder="เลือกวันที่ พ.ศ." required></div>
-                    <div class="col-md-4"><input type="file" name="image[]" class="form-control" accept="image/*,application/pdf" multiple></div>
-                </div>
-                <div class="row g-2 mb-3">
-                    <div class="col-12"><input type="url" name="link_url" class="form-control" placeholder="ลิงก์หน้าข่าวสารเพิ่มเติมภายนอก"></div>
-                </div>
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-10">
-                        <textarea name="content" class="form-control" rows="2" placeholder="กรอกเนื้อหาข่าวสารแบบละเอียด..."></textarea>
-                    </div>
-                    <div class="col-md-2 text-end d-flex flex-column gap-2 justify-content-end align-items-end">
-                        <div class="form-check form-switch p-2 border rounded bg-white w-100 text-center">
-                            <input class="form-check-input ms-1" type="checkbox" name="is_new" id="news_is_new" value="1" checked>
-                            <label class="form-check-label me-3" for="news_is_new">ติดป้าย "ใหม่"</label>
-                        </div>
-                        <button type="submit" class="btn btn-hospital-orange w-100">+ เพิ่มข่าวสาร</button>
-                    </div>
-                </div>
-            </form>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h5 class="text-hospital mb-0 fw-bold"><i class="bi bi-house-door-fill me-1"></i>จัดการเนื้อหาหน้าหลัก (Index)</h5>
+                <a href="index.php" target="_blank" class="btn btn-outline-primary btn-sm"><i class="bi bi-box-arrow-up-right"></i> เปิดหน้าหลัก</a>
+            </div>
 
-            <div class="admin-table-scroll mt-4">
-            <table class="table align-middle mb-0">
-                <thead><tr><th>ไฟล์/รูป</th><th>วันที่</th><th>หัวข้อข่าว/เนื้อหา/ลิงก์</th><th>ป้ายสถานะ</th><th>จัดการ</th></tr></thead>
+            <div class="admin-form-container">
+                <!-- Dropdown กรองหมวด -->
+                <form method="GET" class="row g-2 mb-3">
+                    <input type="hidden" name="tab" value="index_page">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">หมวดข้อมูล</label>
+                        <select name="idx_section" class="form-select" onchange="this.form.submit()">
+                            <option value="">— ทั้งหมด —</option>
+                            <?php foreach ($index_page_groups as $group_name => $items): ?>
+                                <optgroup label="<?= htmlspecialchars($group_name) ?>">
+                                <?php foreach ($items as $key => $label): ?>
+                                    <option value="<?= htmlspecialchars($key) ?>" <?= $selected_idx_section === $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+                                <?php endforeach; ?>
+                                </optgroup>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </form>
+
+                <!-- ฟอร์มเพิ่ม/แก้ไข -->
+                <?php
+                    $idx_create_section = $selected_idx_section !== '' ? $selected_idx_section : array_key_first($index_page_sections);
+                ?>
+                <form id="indexPageForm" action="admin.php?tab=index_page&idx_section=<?= urlencode($selected_idx_section) ?>" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action_index_page" id="idx_action" value="create">
+                    <input type="hidden" name="id" id="idx_id">
+                    <input type="hidden" name="old_file" id="idx_old_file">
+                    <input type="hidden" name="section" id="idx_section_select" value="<?= htmlspecialchars($idx_create_section) ?>">
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">หัวข้อ</label>
+                            <input type="text" name="title" id="idx_title" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">ลำดับแสดงผล</label>
+                            <input type="number" name="sort_order" id="idx_sort_order" class="form-control" value="1" min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">ลิงก์ภายนอก (ถ้ามี)</label>
+                        <input type="url" name="link_url" id="idx_link_url" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">รายละเอียด</label>
+                        <textarea name="content" id="idx_content" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">ไฟล์แนบ / รูปภาพ / วิดีโอ</label>
+                            <input type="file" name="content_file[]" class="form-control" accept="image/*,application/pdf,video/*,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple>
+                        </div>
+                        <div class="col-md-4 d-flex gap-2">
+                            <button type="submit" id="idx_submit" class="btn btn-hospital-orange flex-fill">+ เพิ่มข้อมูล</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetIndexPageForm()">ล้างฟอร์ม</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ตารางแสดงข้อมูล -->
+            <div class="admin-table-scroll dept-content-scroll mt-4">
+            <table class="table table-striped align-middle dept-content-table mb-0">
+                <colgroup>
+                    <col class="col-section">
+                    <col class="col-title">
+                    <col class="col-file">
+                    <col class="col-order">
+                    <col class="col-action">
+                </colgroup>
+                <thead>
+                    <tr><th>หมวด</th><th>หัวข้อ / รายละเอียด</th><th>ไฟล์ / ลิงก์</th><th>ลำดับ</th><th>จัดการ</th></tr>
+                </thead>
                 <tbody>
-                    <?php foreach($news_items as $row):
-                        $news_content = $row['content'] ?? '';
-                        $is_new_badge = isset($row['is_new']) ? (int)$row['is_new'] : 0;
-                        $news_link    = $row['link_url'] ?? '';
-                        $news_files   = parseFileNames($row['image_name']);
+                    <?php if(empty($index_page_items)): ?>
+                        <tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มีข้อมูลหน้าหลัก</td></tr>
+                    <?php endif; ?>
+                    <?php foreach($index_page_items as $row):
+                        $content_file  = $row['file_name'] ?? '';
+                        $content_files = parseFileNames($content_file);
+                        $content_link  = $row['link_url'] ?? '';
+                        $section_label = $index_page_sections[$row['section']] ?? $row['section'];
+                        $edit_payload  = [
+                            'id'         => (int)$row['id'],
+                            'section'    => $row['section'],
+                            'title'      => $row['title'],
+                            'content'    => $row['content'] ?? '',
+                            'file_name'  => $content_file,
+                            'link_url'   => $content_link,
+                            'sort_order' => (int)$row['sort_order']
+                        ];
                     ?>
                     <tr>
-                        <td width="12%">
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <?php foreach ($news_files as $file):
-                                    $is_pdf = strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'pdf';
-                                ?>
-                                    <?php if($is_pdf): ?>
-                                        <a href="uploads/<?= htmlspecialchars($file) ?>" target="_blank" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</a>
-                                    <?php else: ?>
-                                        <img src="uploads/<?= htmlspecialchars($file) ?>" width="50" class="img-thumbnail" onerror="this.src='https://placehold.co/50x50?text=No+Image'" style="height:auto;">
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                                <?php if(empty($news_files)): ?><span class="text-muted small">ไม่มีไฟล์</span><?php endif; ?>
-                            </div>
-                        </td>
-                        <td width="15%"><?= dateToThaiText($row['created_at']) ?></td>
+                        <td><span class="badge bg-secondary dept-content-section-badge"><?= htmlspecialchars($section_label) ?></span></td>
                         <td>
                             <strong><?= htmlspecialchars($row['title']) ?></strong>
-                            <div class="text-muted small text-preview-short"><?php
-                                $preview = mb_substr($news_content, 0, 100, 'UTF-8');
-                                echo htmlspecialchars($preview);
-                                if (mb_strlen($news_content, 'UTF-8') > 100) echo '...';
+                            <div class="small text-muted text-preview-short"><?php
+                                $dc_preview = mb_substr($row['content'] ?? '', 0, 100, 'UTF-8');
+                                echo htmlspecialchars($dc_preview);
+                                if (mb_strlen($row['content'] ?? '', 'UTF-8') > 100) echo '...';
                             ?></div>
-                            <?php if(!empty($news_link)): ?>
-                                <div class="small mt-1"><i class="bi bi-link-45deg text-primary"></i> <a href="<?= htmlspecialchars($news_link) ?>" target="_blank" class="text-decoration-none text-truncate d-inline-block text-preview-link"><?= htmlspecialchars($news_link) ?></a></div>
+                        </td>
+                        <td class="dept-content-file-cell">
+                            <?php foreach($content_files as $file):
+                                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                $fname_no_ext = pathinfo($file, PATHINFO_FILENAME);
+                                $short = mb_strlen($fname_no_ext, 'UTF-8') > 30 ? mb_substr($fname_no_ext, 0, 30, 'UTF-8') . '…' : $fname_no_ext;
+                                $display = $short . ($ext ? '.' . $ext : '');
+                                if     (in_array($ext, ['pdf']))                    { $ic='bi-file-earmark-pdf-fill';    $cl='text-danger';  }
+                                elseif (in_array($ext, ['doc','docx']))             { $ic='bi-file-earmark-word-fill';   $cl='text-primary'; }
+                                elseif (in_array($ext, ['xls','xlsx','csv']))       { $ic='bi-file-earmark-excel-fill';  $cl='text-success'; }
+                                elseif (in_array($ext, ['ppt','pptx']))             { $ic='bi-file-earmark-slides-fill'; $cl='text-warning'; }
+                                elseif (in_array($ext, ['mp4','webm','ogg','mov'])) { $ic='bi-file-earmark-play-fill';   $cl='text-hospital';}
+                                elseif (in_array($ext, ['jpg','jpeg','png','gif','webp'])) { $ic='bi-file-earmark-image-fill'; $cl='text-info'; }
+                                else                                                { $ic='bi-paperclip';                $cl='text-hospital';}
+                            ?>
+                               <div class="mb-1">
+                                   <a href="uploads/<?= htmlspecialchars($file) ?>" target="_blank" title="<?= htmlspecialchars($file) ?>" class="text-decoration-none">
+                                       <i class="bi <?= $ic ?> <?= $cl ?>"></i> <?= htmlspecialchars($display) ?>
+                                   </a>
+                               </div>
+                            <?php endforeach; ?>
+                            <?php if(!empty($content_link)):
+                                $link_short = mb_strlen($content_link, 'UTF-8') > 50 ? mb_substr($content_link, 0, 50, 'UTF-8') . '…' : $content_link;
+                            ?>
+                                <div class="admin-file-link"><i class="bi bi-link-45deg text-primary"></i> <a href="<?= htmlspecialchars($content_link) ?>" target="_blank" title="<?= htmlspecialchars($content_link) ?>" class="text-decoration-none"><?= htmlspecialchars($link_short) ?></a></div>
+                            <?php endif; ?>
+                            <?php if(empty($content_files) && empty($content_link)): ?>
+                                <span class="text-muted small">ไม่มีไฟล์/ลิงก์</span>
                             <?php endif; ?>
                         </td>
-                        <td width="12%"><?php if($is_new_badge === 1): ?><span class="badge-orange-style">ใหม่</span><?php endif; ?></td>
-                        <td width="15%">
-                            <button class="btn btn-outline-edit-style btn-sm me-1" onclick='editNews(<?= (int)$row["id"] ?>, <?= json_encode($row["title"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($news_content, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["created_at"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>, <?= json_encode($row["image_name"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= (int)$is_new_badge ?>, <?= json_encode($news_link, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>)'>แก้ไข</button>
-                            <a href="admin.php?tab=news&del_news=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')">ลบ</a>
+                        <td><?= (int)$row['sort_order'] ?></td>
+                        <td width="16%">
+                            <button type="button" class="btn btn-outline-edit-style btn-sm me-1" onclick='editIndexPage(<?= json_encode($edit_payload, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>แก้ไข</button>
+                            <a href="admin.php?tab=index_page&idx_section=<?= urlencode($selected_idx_section) ?>&del_index_page=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ต้องการลบข้อมูลนี้หรือไม่?')">ลบ</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -663,9 +915,16 @@ if ($active_tab == 'news') {
         <div>
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h5 class="text-hospital mb-0 fw-bold">จัดการข้อมูลรายกลุ่มงาน</h5>
-                <?php if($selected_dept_id > 0): ?>
-                    <a href="department.php?id=<?= $selected_dept_id ?>" target="_blank" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-box-arrow-up-right"></i> เปิดหน้ากลุ่มงาน
+                <?php
+                    $selected_dept_link = '';
+                    foreach ($all_depts as $d) {
+                        if ((int)$d['id'] === $selected_dept_id) { $selected_dept_link = $d['link_url'] ?? ''; break; }
+                    }
+                    $preview_link = $selected_is_general ? ($selected_general_slug . '.php') : $selected_dept_link;
+                ?>
+                <?php if($preview_link !== ''): ?>
+                    <a href="<?= htmlspecialchars($preview_link) ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-box-arrow-up-right"></i> <?= $selected_is_general ? 'เปิดหน้านี้' : 'เปิดหน้ากลุ่มงาน' ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -673,10 +932,13 @@ if ($active_tab == 'news') {
             <?php if(empty($all_depts)): ?>
                 <div class="alert alert-warning">กรุณาเพิ่มข้อมูลหอผู้ป่วย / หน่วยงานก่อน</div>
             <?php else: ?>
+
+            <div class="admin-form-container">
                 <?php if ($is_main_admin): ?>
-                <form method="GET" class="row g-2 mb-3">
+                <form method="GET" class="row g-2">
                     <input type="hidden" name="tab" value="dept_contents">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">กลุ่มงาน</label>
                         <select name="dept_id" class="form-select" onchange="this.form.submit()">
                             <?php foreach($all_depts as $dept): ?>
                                 <option value="<?= $dept['id'] ?>" <?= (int)$dept['id'] === $selected_dept_id ? 'selected' : '' ?>>
@@ -685,8 +947,11 @@ if ($active_tab == 'news') {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-hospital-orange w-100" type="submit">เลือกกลุ่มงาน</button>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">หมวดข้อมูล</label>
+                        <select name="section" class="form-select" onchange="this.form.submit()">
+                            <?= renderSectionOptions($department_content_sections, 'หมวดของแผนก', $general_content_sections, $selected_dept_section, $selected_is_general, $selected_general_slug, $is_main_admin) ?>
+                        </select>
                     </div>
                 </form>
                 <?php else: ?>
@@ -703,38 +968,50 @@ if ($active_tab == 'news') {
                             (Admin แผนกสามารถแก้ไขได้เฉพาะแผนกของตัวเองเท่านั้น)
                         </div>
                     </div>
+                    <form method="GET" class="row g-2">
+                        <input type="hidden" name="tab" value="dept_contents">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">หมวดข้อมูล</label>
+                            <select name="section" class="form-select" onchange="this.form.submit()">
+                                <?= renderSectionOptions($department_content_sections, 'หมวดของแผนก', $general_content_sections, $selected_dept_section, $selected_is_general, $selected_general_slug, $is_main_admin) ?>
+                            </select>
+                        </div>
+                    </form>
                 <?php endif; ?>
 
-                <form id="deptContentForm" action="admin.php?tab=dept_contents&dept_id=<?= $selected_dept_id ?>" method="POST" enctype="multipart/form-data" class="admin-form-container">
+
+                <?php
+                    // ใช้หมวดที่เลือกไว้ใน dropdown "หมวดข้อมูล" ด้านบนเป็นหมวดของรายการใหม่โดยตรง ไม่ต้องมีช่องเลือกซ้ำ
+                    // ถ้ายังไม่ได้กรอง (ดูอยู่แบบ "ทั้งหมดของแผนกนี้") ให้ตั้งค่าเริ่มต้นเป็นหมวดแรกของแผนก
+                    if ($selected_is_general) {
+                        $create_section_value = 'g_' . $selected_general_slug;
+                    } elseif ($selected_dept_section !== '') {
+                        $create_section_value = $selected_dept_section;
+                    } else {
+                        $create_section_value = array_key_first($department_content_sections);
+                    }
+                ?>
+                <form id="deptContentForm" action="admin.php?tab=dept_contents&dept_id=<?= $selected_dept_id ?>&section=<?= urlencode($selected_section) ?>" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action_dept_content" id="dept_content_action" value="create">
                     <input type="hidden" name="id" id="dept_content_id">
                     <input type="hidden" name="old_file" id="dept_content_old_file">
-                    
+
                     <input type="hidden" name="department_id" id="dept_content_department_id" value="<?= $selected_dept_id ?>">
+                    <input type="hidden" name="section" id="dept_content_section" value="<?= htmlspecialchars($create_section_value) ?>">
 
                     <div class="row g-2 mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">หมวดข้อมูล</label>
-                            <select name="section" id="dept_content_section" class="form-select" required>
-                                <?php foreach($department_content_sections as $key => $label): ?>
-                                    <option value="<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($label) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">หัวข้อ</label>
+                            <input type="text" name="title" id="dept_content_title" class="form-control" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">ลำดับแสดงผล</label>
                             <input type="number" name="sort_order" id="dept_content_sort_order" class="form-control" value="1" min="1" step="1">
                         </div>
                     </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">หัวข้อ</label>
-                            <input type="text" name="title" id="dept_content_title" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">ลิงก์ภายนอก (ถ้ามี)</label>
-                            <input type="url" name="link_url" id="dept_content_link_url" class="form-control">
-                        </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">ลิงก์ภายนอก (ถ้ามี)</label>
+                        <input type="url" name="link_url" id="dept_content_link_url" class="form-control">
                     </div>
                     <div class="mb-2">
                         <label class="form-label fw-bold">รายละเอียด</label>
@@ -751,6 +1028,7 @@ if ($active_tab == 'news') {
                         </div>
                     </div>
                 </form>
+            </div>
 
                 <div class="admin-table-scroll dept-content-scroll mt-4">
                 <table class="table table-striped align-middle dept-content-table mb-0">
@@ -772,11 +1050,14 @@ if ($active_tab == 'news') {
                             $content_file  = $row['file_name'] ?? '';
                             $content_files = parseFileNames($content_file);
                             $content_link  = $row['link_url'] ?? '';
-                            $section_label = $department_content_sections[$row['section']] ?? $row['section'];
+                            $section_label = $selected_is_general
+                                ? ($general_content_sections[$row['section']] ?? $row['section'])
+                                : ($department_content_sections[$row['section']] ?? $row['section']);
                             $edit_payload  = [
                                 'id'            => (int)$row['id'],
                                 'department_id' => (int)$row['department_id'],
-                                'section'       => $row['section'],
+                                // แถวที่ department_id เป็น NULL (เนื้อหาทั่วไป) ต้องใส่ prefix "g_" ให้ตรงกับ value ใน dropdown "หมวดข้อมูล"
+                                'section'       => ($row['department_id'] === null ? 'g_' . $row['section'] : $row['section']),
                                 'title'         => $row['title'],
                                 'content'       => $row['content'] ?? '',
                                 'file_name'     => $content_file,
@@ -832,7 +1113,7 @@ if ($active_tab == 'news') {
                             <td><?= (int)$row['sort_order'] ?></td>
                             <td width="16%">
                                 <button type="button" class="btn btn-outline-edit-style btn-sm me-1" onclick='editDeptContent(<?= json_encode($edit_payload, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>แก้ไข</button>
-                                <a href="admin.php?tab=dept_contents&dept_id=<?= $selected_dept_id ?>&del_dept_content=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ต้องการลบข้อมูลนี้หรือไม่?')">ลบ</a>
+                                <a href="admin.php?tab=dept_contents&dept_id=<?= $selected_dept_id ?>&section=<?= urlencode($selected_section) ?>&del_dept_content=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ต้องการลบข้อมูลนี้หรือไม่?')">ลบ</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -845,8 +1126,8 @@ if ($active_tab == 'news') {
 
         <?php if($active_tab == 'banners'): ?>
         <div>
-            <h5 class="text-hospital mb-3 fw-bold">จัดการ Banner / Slider หน้าแรก</h5>
-            <p class="text-muted small mb-3"><i class="bi bi-info-circle"></i> Banner จะแสดงเป็น Slider บนหน้าแรกของเว็บไซต์ เรียงตามลำดับที่กำหนด</p>
+            <h5 class="text-hospital mb-3 fw-bold">จัดการ Banner / Slider</h5>
+            <p class="text-muted small mb-3"><i class="bi bi-info-circle"></i> Banner จะแสดงเป็น Slider — เลือก "หน้าแรกของเว็บไซต์" หรือเลือกแผนก เพื่อให้ Banner แสดงเฉพาะหน้าแผนกนั้น เรียงตามลำดับที่กำหนด</p>
 
             <form action="admin.php?tab=banners" method="POST" enctype="multipart/form-data" class="admin-form-container">
                 <input type="hidden" name="action_banner" value="create">
@@ -856,8 +1137,13 @@ if ($active_tab == 'news') {
                         <input type="text" name="title" class="form-control" placeholder="หัวข้อที่แสดงบน Slider" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">ลิงก์ปุ่ม "อ่านเพิ่มเติม"</label>
-                        <input type="url" name="link_url" class="form-control" placeholder="https://...">
+                        <label class="form-label fw-bold">แสดงที่</label>
+                        <select name="department_id" class="form-select">
+                            <option value="">หน้าแรกของเว็บไซต์</option>
+                            <?php foreach($all_depts as $dept): ?>
+                                <option value="<?= (int)$dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold">ลำดับแสดง</label>
@@ -865,11 +1151,15 @@ if ($active_tab == 'news') {
                     </div>
                 </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-md-7">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">ลิงก์ปุ่ม "อ่านเพิ่มเติม"</label>
+                        <input type="url" name="link_url" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label fw-bold">คำบรรยาย (Subtitle)</label>
                         <input type="text" name="subtitle" class="form-control" placeholder="คำบรรยายใต้หัวข้อ Banner">
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label fw-bold">รูปภาพ Banner</label>
                         <input type="file" name="banner_image" class="form-control" accept="image/*">
                         <div class="form-text">แนะนำขนาด 1920×600 px หรืออัตราส่วน 16:5</div>
@@ -894,6 +1184,7 @@ if ($active_tab == 'news') {
                     <tr>
                         <th width="12%">รูปภาพ</th>
                         <th>หัวข้อ / คำบรรยาย / ลิงก์</th>
+                        <th width="12%">แสดงที่</th>
                         <th width="8%">ลำดับ</th>
                         <th width="9%">สถานะ</th>
                         <th width="15%">จัดการ</th>
@@ -901,7 +1192,7 @@ if ($active_tab == 'news') {
                 </thead>
                 <tbody>
                     <?php if(empty($banner_items)): ?>
-                        <tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มี Banner — กรุณาเพิ่มด้านบน</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">ยังไม่มี Banner — กรุณาเพิ่มด้านบน</td></tr>
                     <?php endif; ?>
                     <?php foreach($banner_items as $row):
                         $img = $row['image_name'] ?? '';
@@ -923,6 +1214,13 @@ if ($active_tab == 'news') {
                                 <div class="small mt-1"><i class="bi bi-link-45deg text-primary"></i> <a href="<?= htmlspecialchars($row['link_url']) ?>" target="_blank" class="text-decoration-none"><?= htmlspecialchars($row['link_url']) ?></a></div>
                             <?php endif; ?>
                         </td>
+                        <td>
+                            <?php if(!empty($row['department_name'])): ?>
+                                <span class="badge bg-info text-dark"><?= htmlspecialchars($row['department_name']) ?></span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary">หน้าแรก</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-center"><?= (int)$row['sort_order'] ?></td>
                         <td>
                             <?php if((int)$row['is_active'] === 1): ?>
@@ -933,7 +1231,7 @@ if ($active_tab == 'news') {
                         </td>
                         <td>
                             <button class="btn btn-outline-edit-style btn-sm me-1"
-                                onclick='editBanner(<?= (int)$row["id"] ?>, <?= json_encode($row["title"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["subtitle"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["image_name"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["link_url"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= (int)$row["sort_order"] ?>, <?= (int)$row["is_active"] ?>)'>
+                                onclick='editBanner(<?= (int)$row["id"] ?>, <?= json_encode($row["title"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["subtitle"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["image_name"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["link_url"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= (int)$row["sort_order"] ?>, <?= (int)$row["is_active"] ?>, <?= (int)($row["department_id"] ?? 0) ?>)'>
                                 แก้ไข
                             </button>
                             <a href="admin.php?tab=banners&del_banner=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ต้องการลบ Banner นี้หรือไม่?')">ลบ</a>
@@ -1154,10 +1452,19 @@ if ($active_tab == 'news') {
         </div>
         <div class="row g-2 mb-3">
             <div class="col-md-4">
+                <label class="form-label fw-bold">แสดงที่</label>
+                <select name="department_id" id="edit_banner_department" class="form-select">
+                    <option value="">หน้าแรกของเว็บไซต์</option>
+                    <?php foreach($all_depts as $dept): ?>
+                        <option value="<?= (int)$dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-4">
                 <label class="form-label fw-bold">ลำดับแสดง</label>
                 <input type="number" name="sort_order" id="edit_banner_sort" class="form-control" min="1">
             </div>
-            <div class="col-md-8">
+            <div class="col-md-4">
                 <label class="form-label fw-bold">รูปภาพใหม่ (เว้นว่างเพื่อใช้รูปเดิม)</label>
                 <input type="file" name="banner_image" class="form-control" accept="image/*">
             </div>
@@ -1268,7 +1575,7 @@ function resetDeptContentForm() {
     
     // คืนค่า department_id ประจำกลุ่มงานกลับเข้าไปตามเดิม
     document.getElementById('dept_content_department_id').value = currentDeptId;
-    
+
     document.getElementById('dept_content_submit').textContent = '+ เพิ่มข้อมูล';
 }
 
@@ -1280,8 +1587,41 @@ if (deptContentForm) {
     });
 }
 
+// ----- Index Page edit -----
+function editIndexPage(item) {
+    document.getElementById('idx_action').value         = 'update';
+    document.getElementById('idx_id').value             = item.id || '';
+    document.getElementById('idx_old_file').value       = item.file_name || '';
+    document.getElementById('idx_section_select').value = item.section || 'idx_news';
+    document.getElementById('idx_sort_order').value     = Math.max(1, parseInt(item.sort_order || 1, 10));
+    document.getElementById('idx_title').value          = item.title || '';
+    document.getElementById('idx_link_url').value       = item.link_url || '';
+    document.getElementById('idx_content').value        = item.content || '';
+    document.getElementById('idx_submit').textContent   = 'บันทึกการแก้ไข';
+    document.getElementById('indexPageForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetIndexPageForm() {
+    const form = document.getElementById('indexPageForm');
+    if (!form) return;
+    form.reset();
+    document.getElementById('idx_action').value     = 'create';
+    document.getElementById('idx_id').value         = '';
+    document.getElementById('idx_old_file').value   = '';
+    document.getElementById('idx_sort_order').value = '1';
+    document.getElementById('idx_submit').textContent = '+ เพิ่มข้อมูล';
+}
+
+const indexPageForm = document.getElementById('indexPageForm');
+if (indexPageForm) {
+    indexPageForm.addEventListener('submit', function () {
+        const sortInput = document.getElementById('idx_sort_order');
+        sortInput.value = Math.max(1, parseInt(sortInput.value || 1, 10));
+    });
+}
+
 // ----- Banner edit -----
-function editBanner(id, title, subtitle, img, link, sort, isActive) {
+function editBanner(id, title, subtitle, img, link, sort, isActive, departmentId) {
     document.getElementById('edit_banner_id').value       = id;
     document.getElementById('edit_banner_title').value    = title;
     document.getElementById('edit_banner_subtitle').value = subtitle;
@@ -1289,6 +1629,7 @@ function editBanner(id, title, subtitle, img, link, sort, isActive) {
     document.getElementById('edit_banner_link').value     = link;
     document.getElementById('edit_banner_sort').value     = sort;
     document.getElementById('edit_banner_active').checked = (parseInt(isActive) === 1);
+    document.getElementById('edit_banner_department').value = departmentId ? String(departmentId) : '';
 
     // แสดง preview รูปเดิม
     const previewWrap = document.getElementById('edit_banner_preview_wrap');
