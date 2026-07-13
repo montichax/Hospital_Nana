@@ -1,5 +1,120 @@
 <?php
-// หน้าอยู่ระหว่างการจัดทำ — จริยธรรมการพยาบาล
+// =====================================================================
+//  กุมารเวช — หน้าหอผู้ป่วย/หน่วยงาน (เวอร์ชันปรับขนาดมีเดียและเมนูตามหน้าเดโมจริง)
+//  ดึงข้อมูลจากตาราง department_contents โดยอ้างอิง department_id = 1
+// =====================================================================
+require_once 'connect.php';
+
+$DEPT_ID   = 1;
+$DEPT_NAME = 'กุมารเวช';
+
+function dateToThaiFull($dateStr) {
+    if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';
+    $time = strtotime($dateStr);
+    if (!$time) return htmlspecialchars($dateStr);
+    $d = date('j', $time);
+    $m = date('n', $time);
+    $y = date('Y', $time) + 543;
+    $months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    return "$d {$months[$m]} $y";
+}
+
+function parseFileNames($fileData) {
+    if (empty($fileData)) return [];
+    $decoded = json_decode($fileData, true);
+    if (is_array($decoded)) return $decoded;
+    if (is_string($fileData) && !empty($fileData)) return [$fileData];
+    return [];
+}
+
+// ---------- ข้อมูลแผนกนี้ ----------
+$stmt = $conn->prepare("SELECT * FROM departments WHERE id = :id");
+$stmt->execute([':id' => $DEPT_ID]);
+$dept = $stmt->fetch(PDO::FETCH_ASSOC);
+if (!$dept) $dept = ['id' => $DEPT_ID, 'name' => $DEPT_NAME, 'link_url' => null];
+
+// ---------- Banner ของแผนก ----------
+$stmt = $conn->prepare("
+    SELECT *
+    FROM banners
+    WHERE department_id = :dept_id
+      AND is_active = 1
+    ORDER BY sort_order ASC, id ASC
+");
+
+$stmt->execute([
+    ':dept_id' => $DEPT_ID
+]);
+
+$slides = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ---------- เนื้อหาของแผนกนี้ (จัดกลุ่มตาม section) ----------
+$stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id = :id ORDER BY section ASC, sort_order ASC, id ASC");
+$stmt->execute([':id' => $DEPT_ID]);
+$content_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$bySection = [];
+foreach ($content_rows as $row) { $bySection[$row['section']][] = $row; }
+
+$sectionLabels = [
+    'structure'       => 'โครงสร้างการบริหารงาน',
+    'personnel'       => 'ทำเนียบบุคลากร',
+    'service'         => 'การให้บริการต่างๆ',
+    'service_profile' => 'Service Profile',
+    'indicator'       => 'ตัวชี้วัด',
+    'academic'        => 'ผลงานวิจัย',
+    'wi'              => 'WI / SP',
+    'knowledge'       => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',
+];
+
+// ---------- เมนูแนวนอน 5 หมวด ----------
+$menuGroups = [
+    ['label' => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',  'icon' => 'bi-lightbulb-fill',         'sections' => ['knowledge']],
+    ['label' => 'โครงสร้างการบริหารงาน',           'icon' => 'bi-diagram-3-fill',         'sections' => ['structure', 'personnel', 'service']],
+    ['label' => 'Service Profile',                  'icon' => 'bi-clipboard2-pulse-fill',  'sections' => ['service_profile', 'indicator']],
+    ['label' => 'ผลงานวิจัย / วิชาการ',             'icon' => 'bi-journal-text',           'sections' => ['academic']],
+    ['label' => 'WI, SP',                           'icon' => 'bi-file-earmark-medical-fill','sections' => ['wi']],
+];
+
+// ---------- ฟังก์ชันแสดงไฟล์แนบ ----------
+function renderAttachments($row) {
+    $files = parseFileNames($row['file_name'] ?? '');
+    $html  = '';
+    foreach ($files as $fname) {
+        if (empty($fname) || $fname === 'default.jpg') continue;
+        $path = 'uploads/' . $fname;
+        $ext  = strtolower(pathinfo($fname, PATHINFO_EXTENSION));
+        $safe = htmlspecialchars($path);
+
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            $html .= '<div class="text-center">
+            <img src="' . $safe . '" class="dc-img lightbox-trigger shadow-sm border" alt="" onerror="this.style.display=\'none\'">
+            <small class="text-muted d-block mt-2">คลิกที่รูปภาพเพื่อขยาย</small>
+          </div>';
+        } elseif ($ext === 'pdf') {
+            // PDF: เอาตัวอักษรทับซ้อนและ overlay ออกไปทั้งหมดตามคำสั่ง
+            $html .= '<div class="text-center">
+            <div class="dc-pdf-wrap pdf-lightbox-trigger shadow-sm" data-src="' . $safe . '">
+                <embed src="' . $safe . '" type="application/pdf" class="dc-pdf">
+            </div>
+            <small class="text-muted d-block mt-2">คลิกที่ไฟล์ PDF เพื่อขยาย</small>
+          </div>';
+        } elseif (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+            $html .= '<video class="dc-video shadow-sm" controls preload="metadata"><source src="' . $safe . '"></video>';
+            
+        } else {
+            $icon = 'bi-file-earmark-arrow-down'; $label = 'ไฟล์เอกสาร';
+            if (in_array($ext, ['doc', 'docx'])) { $icon = 'bi-file-earmark-word-fill'; $label = 'ไฟล์ Word'; }
+            elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) { $icon = 'bi-file-earmark-excel-fill'; $label = 'ไฟล์ Excel'; }
+            elseif (in_array($ext, ['ppt', 'pptx'])) { $icon = 'bi-file-earmark-slides-fill'; $label = 'ไฟล์ PowerPoint'; }
+            $html .= '<a href="' . $safe . '" target="_blank" class="dc-file-tile mx-auto">
+                        <i class="bi ' . $icon . '"></i>
+                        <div class="dc-file-tile-label">' . $label . '<small>คลิกเพื่อเปิด/ดาวน์โหลด</small></div>
+                      </a>';
+        }
+    }
+    return $html;
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -32,7 +147,7 @@
             <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
         </div>
         <div>
-            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล</h2>
+            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90">· <?= htmlspecialchars($dept['name']) ?></span></h2>
             <div class="small opacity-90">โรงพยาบาลปากช่องนานา | Nursing Department, Pakchong Nana Hospital</div>
         </div>
     </div>
