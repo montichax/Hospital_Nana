@@ -5,8 +5,8 @@
 // =====================================================================
 require_once 'connect.php';
 
-$DEPT_ID   = 2;
-$DEPT_NAME = 'ตรวจรักษาพิเศษ';
+$DEPT_ID   = 7;
+$DEPT_NAME = 'วิสัญญี';
 
 function dateToThaiFull($dateStr) {
     if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';

@@ -213,11 +213,6 @@ function renderAttachments($row) {
     </div>
 </nav>
 
-<div class="dept-page-header">
-    <div class="container d-flex justify-content-end align-items-center">
-        <a href="index.php" class="btn-back"><i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าแรก</a>
-    </div>
-</div>
 
 <div class="container my-5">
     <div class="row justify-content-center">
