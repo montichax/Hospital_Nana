@@ -5,8 +5,20 @@
 // =====================================================================
 require_once 'connect.php';
 
-$DEPT_ID   = 1;
-$DEPT_NAME = 'กุมารเวช';
+$DEPT_ID = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+
+$stmt = $conn->prepare("
+    SELECT *
+    FROM departments
+    WHERE id = :id
+");
+$stmt->execute([
+    ':id' => $DEPT_ID
+]);
+
+$dept = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$DEPT_NAME = $dept['department_name'] ?? '';
 
 function dateToThaiFull($dateStr) {
     if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';
@@ -160,7 +172,6 @@ function renderAttachments($row) {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-                <a class="nav-link" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

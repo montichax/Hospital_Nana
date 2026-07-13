@@ -160,7 +160,6 @@ function renderAttachments($row) {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-                <a class="nav-link" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
