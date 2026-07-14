@@ -198,9 +198,9 @@ ORDER BY sort_order,id
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                         <li><a class="dropdown-item" href="vision_mission.php"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
                         <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้าพยาบาล</a></li>
-                        <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
-                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i> บุคลากร</a></li>
+                        <li><a class="dropdown-item" href="executives_index.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
+                        <li><a class="dropdown-item" href="ward_heads_index.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <li><a class="dropdown-item" href="personnel_gallery_index.php"><i class="bi bi-people-fill me-2 "></i> รูปบุคลากร</a></li>
                     </ul>
                 </div>
 
@@ -208,12 +208,20 @@ ORDER BY sort_order,id
                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร</a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                        <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
+                        <li><a class="dropdown-item" href="org_structure_index.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
                         <li><a class="dropdown-item" href="regulations.php"><i class="bi bi-journal-bookmark-fill me-2"></i> คู่มือบริหาร</a></li>
                         <li><a class="dropdown-item" href="plans_projects.php"><i class="bi bi-clipboard-data-fill me-2"></i> แผนยุทธศาสตร์การพยาบาล</a></li>
                         <li><a class="dropdown-item" href="staff_dev_plan.php"><i class="bi bi-graph-up-arrow me-2"></i> แผนพัฒนาบุคลากร</a></li>
-                        <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
-                        <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="risk_management_index.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
+                        <li><a class="dropdown-item" href="nursing_ethics_index.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-heart-pulse-fill me-1"></i>งานบริการ</a>
+                    <ul class="dropdown-menu" aria-labelledby="academicDropdown">
+                        <li><a class="dropdown-item" href="supervision_results_index.php"><i class="bi bi-clipboard2-check-fill me-2"></i> ผลการนิเทศ</a></li>
                     </ul>
                 </div>
 
@@ -221,7 +229,7 @@ ORDER BY sort_order,id
                     <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ</a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
-                        <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
+                        <li><a class="dropdown-item" href="dataset_index.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
                         <li><a class="dropdown-item" href="downloads.php"><i class="bi bi-file-earmark-arrow-down-fill me-2"></i> เอกสารดาวน์โหลด</a></li>
                     </ul>
                 </div>
@@ -230,11 +238,11 @@ ORDER BY sort_order,id
                     <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                      <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล</a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
-                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
-                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
-                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
-                        <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
-                        <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
+                        <li><a class="dropdown-item" href="kpi_index.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="service_profile_index.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
+                        <li><a class="dropdown-item" href="cpg_index.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="wi_index.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
+                        <li><a class="dropdown-item" href="research_index.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
                     </ul>
                 </div>
 
@@ -242,8 +250,8 @@ ORDER BY sort_order,id
                     <a class="nav-link dropdown-toggle" href="#" id="informationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                      <i class="bi bi-lightbulb-fill me-1"></i>งานสารสนเทศ</a>
                     <ul class="dropdown-menu" aria-labelledby="informationDropdown">
-                        <li><a class="dropdown-item" href="staffing.php"><i class="bi bi-people-fill me-2"></i> อัตรากำลัง</a></li>
-                        <li><a class="dropdown-item" href="workload.php"><i class="bi bi-bar-chart-line me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="staffing_index.php"><i class="bi bi-people-fill me-2"></i> อัตรากำลัง</a></li>
+                        <li><a class="dropdown-item" href="workload_index.php"><i class="bi bi-bar-chart-line me-2"></i> ภาระงาน</a></li>
                     </ul>
                 </div>
 
@@ -252,7 +260,7 @@ ORDER BY sort_order,id
                     <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์</a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
                         <li><a class="dropdown-item" href="all_news.php"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารทั้งหมด</a></li>
-                        <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
+                        <li><a class="dropdown-item" href="meeting_reports_index.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
                     </ul>
                 </div>
 

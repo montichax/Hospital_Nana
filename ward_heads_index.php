@@ -128,7 +128,7 @@ function renderAttachments($row) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทำเนียบหัวหน้าพยาบาล - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
+    <title>ทำเนียบหัวหน้างาน - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,7 +271,7 @@ function renderAttachments($row) {
 
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h1><i class="bi bi-eye-fill me-2"></i>ทำเนียบหัวหน้าพยาบาล</h1>
+        <h1><i class="bi bi-eye-fill me-2"></i>ทำเนียบหัวหน้างาน</h1>
     </div>
 </div>
 
@@ -280,7 +280,7 @@ function renderAttachments($row) {
         <div class="col-lg-9 col-xl-8" id="generalContent">
             <div class="empty-state">
         <i class="bi bi-cone-striped"></i>
-        <p>หน้า "ทำเนียบหัวหน้าพยาบาล" อยู่ระหว่างการจัดทำ</p>
+        <p>หน้า "ทำเนียบหัวหน้างาน" อยู่ระหว่างการจัดทำ</p>
         <p class="small">ขออภัยในความไม่สะดวก กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง</p>
     </div>
         </div>

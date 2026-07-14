@@ -168,6 +168,14 @@ function renderAttachments($row) {
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-heart-pulse-fill me-1"></i>งานบริการ</a>
+                    <ul class="dropdown-menu" aria-labelledby="academicDropdown">
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'supervision_results.php?id=' . (int)$DEPT_ID : 'supervision_results_index.php' ?>"><i class="bi bi-clipboard2-check-fill me-2"></i> ผลการนิเทศ</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
