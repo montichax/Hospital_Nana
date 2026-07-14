@@ -160,7 +160,7 @@ function renderAttachments($row) {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-
+                <a class="nav-link" href="index.php"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน
@@ -199,7 +199,7 @@ function renderAttachments($row) {
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
                         <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
                         <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
-                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="cpg.php?id=<?= isset($DEPT_ID) ? (int)$DEPT_ID : 1 ?>"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
                         <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
                         <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
                     </ul>

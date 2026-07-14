@@ -1,141 +1,50 @@
 <?php
 // =====================================================================
 //  อุบัติเหตุ-ฉุกเฉิน — หน้าหอผู้ป่วย/หน่วยงาน
-//  ดึงข้อมูลจากตาราง department_contents โดยอ้างอิง department_id = 14
+//  ข้อมูลทั้งหมด (เมนู/เนื้อหา/บุคลากร) ดึงผ่าน Node.js API — ดู assets/js/dept-api.js
+//  API: GET http://localhost:3000/api/departments/14/contents
 // =====================================================================
-require_once 'connect.php';
-
 $DEPT_ID   = 14;
 $DEPT_NAME = 'อุบัติเหตุ-ฉุกเฉิน';
-
-function dateToThaiFull($dateStr) {
-    if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';
-    $time = strtotime($dateStr);
-    if (!$time) return htmlspecialchars($dateStr);
-    $d = date('j', $time);
-    $m = date('n', $time);
-    $y = date('Y', $time) + 543;
-    $months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-    return "$d {$months[$m]} $y";
-}
-
-function parseFileNames($fileData) {
-    if (empty($fileData)) return [];
-    $decoded = json_decode($fileData, true);
-    if (is_array($decoded)) return $decoded;
-    if (is_string($fileData) && !empty($fileData)) return [$fileData];
-    return [];
-}
-
-// ---------- ข้อมูลแผนกนี้ ----------
-$stmt = $conn->prepare("SELECT * FROM departments WHERE id = :id");
-$stmt->execute([':id' => $DEPT_ID]);
-$dept = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$dept) $dept = ['id' => $DEPT_ID, 'name' => $DEPT_NAME, 'link_url' => null];
-
-// ---------- เนื้อหาของแผนกนี้ (จัดกลุ่มตาม section) ----------
-$stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id = :id ORDER BY section ASC, sort_order ASC, id ASC");
-$stmt->execute([':id' => $DEPT_ID]);
-$content_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$bySection = [];
-foreach ($content_rows as $row) { $bySection[$row['section']][] = $row; }
-
-$sectionLabels = [
-    'structure'       => 'โครงสร้างการบริหารงาน',
-    'personnel'       => 'ทำเนียบบุคลากร',
-    'service'         => 'การให้บริการต่างๆ',
-    'service_profile' => 'Service Profile',
-    'indicator'       => 'ตัวชี้วัด',
-    'academic'        => 'ผลงานวิจัย',
-    'wi'              => 'WI / SP',
-    'knowledge'       => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',
-];
-
-// ---------- เมนูแนวนอน 5 หมวด ----------
-$menuGroups = [
-    ['label' => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',  'icon' => 'bi-lightbulb-fill',         'sections' => ['knowledge']],
-    ['label' => 'โครงสร้างการบริหารงาน',           'icon' => 'bi-diagram-3-fill',         'sections' => ['structure', 'personnel', 'service']],
-    ['label' => 'Service Profile',                  'icon' => 'bi-clipboard2-pulse-fill',  'sections' => ['service_profile', 'indicator']],
-    ['label' => 'ผลงานวิจัย / วิชาการ',             'icon' => 'bi-journal-text',           'sections' => ['academic']],
-    ['label' => 'WI, SP',                           'icon' => 'bi-file-earmark-medical-fill','sections' => ['wi']],
-];
-
-// ---------- ฟังก์ชันแสดงไฟล์แนบ ----------
-function renderAttachments($row) {
-    $files = parseFileNames($row['file_name'] ?? '');
-    $html  = '';
-    foreach ($files as $fname) {
-        if (empty($fname) || $fname === 'default.jpg') continue;
-        $path = 'uploads/' . $fname;
-        $ext  = strtolower(pathinfo($fname, PATHINFO_EXTENSION));
-        $safe = htmlspecialchars($path);
-
-        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-            $html .= '<div class="text-center">
-            <img src="' . $safe . '" class="dc-img lightbox-trigger shadow-sm border" alt="" onerror="this.style.display=\'none\'">
-            <small class="text-muted d-block mt-2">คลิกที่รูปภาพเพื่อขยาย</small>
-          </div>';
-        } elseif ($ext === 'pdf') {
-            // PDF: เอาตัวอักษรทับซ้อนและ overlay ออกไปทั้งหมดตามคำสั่ง
-            $html .= '<div class="text-center">
-            <div class="dc-pdf-wrap pdf-lightbox-trigger shadow-sm" data-src="' . $safe . '">
-                <embed src="' . $safe . '" type="application/pdf" class="dc-pdf">
-            </div>
-            <small class="text-muted d-block mt-2">คลิกที่ไฟล์ PDF เพื่อขยาย</small>
-          </div>';
-        } elseif (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-            $html .= '<video class="dc-video shadow-sm" controls preload="metadata"><source src="' . $safe . '"></video>';
-            
-        } else {
-            $icon = 'bi-file-earmark-arrow-down'; $label = 'ไฟล์เอกสาร';
-            if (in_array($ext, ['doc', 'docx'])) { $icon = 'bi-file-earmark-word-fill'; $label = 'ไฟล์ Word'; }
-            elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) { $icon = 'bi-file-earmark-excel-fill'; $label = 'ไฟล์ Excel'; }
-            elseif (in_array($ext, ['ppt', 'pptx'])) { $icon = 'bi-file-earmark-slides-fill'; $label = 'ไฟล์ PowerPoint'; }
-            $html .= '<a href="' . $safe . '" target="_blank" class="dc-file-tile mx-auto">
-                        <i class="bi ' . $icon . '"></i>
-                        <div class="dc-file-tile-label">' . $label . '<small>คลิกเพื่อเปิด/ดาวน์โหลด</small></div>
-                      </a>';
-        }
-    }
-    return $html;
-}
 ?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($dept['name']) ?> - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
+    <title><?= htmlspecialchars($DEPT_NAME) ?> - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="department.css">
 </head>
-<body class="dept-page">
+<body>
 
+<!-- แถบบนสุด: เบอร์สายด่วนติดต่อ/อีเมล และปุ่มเข้าสู่ระบบสำหรับเจ้าหน้าที่ -->
 <div class="top-bar">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div><i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th</div>
-        <a href="login.php" class="btn btn-sm btn-outline-light ">เข้าสู่ระบบ</a>
+        <a href="login.php" class="btn btn-sm btn-outline-light">เข้าสู่ระบบ</a>
     </div>
 </div>
 
+<!-- แบนเนอร์หัวหน้าเว็บ: โลโก้โรงพยาบาล + ชื่อกลุ่มงานการพยาบาล/ชื่อแผนก ($DEPT_NAME) -->
 <div class="header-banner">
     <div class="container d-flex align-items-center">
-        <a href="index.php" class="text-decoration-none">
-            <div class="me-3">
-                <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
-            </div>
-        </a>
+        <div class="me-3">
+            <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
+        </div>
         <div>
-            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90">· <?= htmlspecialchars($dept['name']) ?></span></h2>
+            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90">· <?= htmlspecialchars($DEPT_NAME) ?></span></h2>
             <div class="small opacity-90">โรงพยาบาลปากช่องนานา | Nursing Department, Pakchong Nana Hospital</div>
         </div>
     </div>
 </div>
 
+<!-- เมนูหลักของเว็บกลุ่มงานการพยาบาล แบ่งเป็นหมวด: เกี่ยวกับกลุ่มงาน/งานบริหาร/งานบริการ/งานวิชาการ/คุณภาพทางการพยาบาล/งานสารสนเทศ/ข่าวประชาสัมพันธ์ -->
 <nav class="navbar navbar-expand-lg main-nav p-0 shadow-sm" id="mainNav">
     <div class="container">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="เปิดเมนู">
@@ -143,6 +52,7 @@ function renderAttachments($row) {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
+                <a class="nav-link" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -150,8 +60,7 @@ function renderAttachments($row) {
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                         <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
-                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</a></li>
+                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2"></i> รูปบุคลากร</a></li>
                     </ul>
                 </div>
 
@@ -167,6 +76,15 @@ function renderAttachments($row) {
                 </div>
 
                 <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="serviceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-clipboard2-check-fill me-1"></i>งานบริการ
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
+                        <li><a class="dropdown-item" href="supervision_results.php"><i class="bi bi-clipboard-check me-2"></i> ผลการนิเทศ</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ
                     </a>
@@ -177,7 +95,7 @@ function renderAttachments($row) {
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล
+                        <i class="bi bi-star-fill me-1"></i>คุณภาพทางการพยาบาล
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
                         <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
@@ -200,7 +118,7 @@ function renderAttachments($row) {
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell-fill me-1"></i>ข่าวสารประชาสัมพันธ์
+                        <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
                         <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
@@ -213,178 +131,34 @@ function renderAttachments($row) {
     </div>
 </nav>
 
-<!-- แบนเนอร์สไลด์โชว์ของแผนก -->
-<?php if(!empty($slides)): ?>
-<div class="dept-hero-wrap">
-    <div id="deptHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
-        <div class="carousel-inner">
-            <?php foreach($slides as $i => $slide):
-                $isActive = ($i==0)?'active':'';
-                $bgUrl = 'uploads/' . htmlspecialchars($slide['image_name']);
-                $bgStyle = "background-image:url('{$bgUrl}');";
-                $slide_link = htmlspecialchars($slide['link_url'] ?? '');
-                $slide_sub  = htmlspecialchars($slide['subtitle'] ?? '');
-            ?>
-            <div class="carousel-item <?= $isActive ?>" style="<?= $bgStyle ?>">
-                <div class="carousel-overlay"></div>
-                <div class="carousel-caption-custom">
-                    <?php if($slide_sub): ?>
-                        <p class="mb-4">
-                            <?= $slide_sub ?>
-                        </p>
-                    <?php endif; ?>
-                    <?php if($slide_link): ?>
-                        <a href="<?= $slide_link ?>"
-                           target="_blank"
-                           class="btn-readmore">
-                            อ่านเพิ่มเติม
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php if(count($slides)>1): ?>
-        <button class="carousel-control-prev" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-        <?php endif; ?>
-    </div>
+<!-- แคโรเซลรูปแบนเนอร์ประจำแผนก: ซ่อนไว้ก่อน (display:none) จะถูกแสดงโดย dept-banner.js เมื่อโหลดรูปจาก API สำเร็จ -->
+<div class="dept-hero-wrap" id="deptHeroWrap" style="display:none;">
+    <div id="deptHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000"></div>
 </div>
-<?php endif; ?>
 
-<!-- เนื้อหาหลักของแผนก -->
-<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-centered p-0" style="background:rgba(0,0,0,0.92);">
-        <div class="modal-content border-0" style="background:transparent;">
-            <div class="modal-body d-flex align-items-center justify-content-center p-2 position-relative" style="min-height:100vh;">
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="font-size:1.4rem; z-index:10;"></button>
-                <img id="lightboxImg" src="" alt="" style="max-width:100%; max-height:95vh; object-fit:contain; border-radius:6px; display:none;">
-                <embed id="lightboxPdf" src="" type="application/pdf" style="width:96vw; height:94vh; border-radius:6px; display:none;">
-            </div>
-        </div>
+<!-- แถบวิสัยทัศน์ของกลุ่มงานการพยาบาล -->
+<div class="vision-bar text-center">
+    <div class="container">
+        " วิสัยทัศน์: กลุ่มงานการพยาบาลที่มีคุณภาพ มาตรฐาน เป็นที่ไว้วางใจของผู้รับบริการ ภายใต้หลักธรรมาภิบาล เพื่อสุขภาวะที่ดีของประชาชน "
     </div>
 </div>
 
-
+<!-- เนื้อหาหลักของแผนก: #deptMainContent เป็นที่ว่างรอ dept-api.js ดึงข้อมูล (เมนู/เนื้อหา/บุคลากร) ตาม DEPT_ID มาแสดงแทน spinner นี้ -->
 <div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8">
-            
-            <?php
-            $target_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-            $show_personnel = isset($_GET['show_personnel']) ? true : false;
-            $show_all_knowledge = true;
-            $selected_item = null;
-
-            if ($target_id > 0) {
-                $stmt = $conn->prepare("SELECT * FROM department_contents WHERE id = :id AND department_id = :dept_id");
-                $stmt->execute([':id' => $target_id, ':dept_id' => $DEPT_ID]);
-                $selected_item = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($selected_item && $selected_item['section'] !== 'knowledge') {
-                    $show_all_knowledge = false;
-                }
-            }
-            ?>
-
-           <?php if ($show_personnel): ?>
-                <!-- ==================== [โหมด: แสดงทำเนียบบุคลากรในหน้าเดียวกัน] ==================== -->
-                <div class="dept-content-card dept-content-card-wide">
-
-                    <?php if (empty($bySection['personnel'])): ?>
-                        <div class="dc-empty-state">
-                            <i class="bi bi-people"></i>
-                            <h3>ยังไม่มีข้อมูลบุคลากรในแผนกนี้</h3>
-                        </div>
-                    <?php else: ?>
-                        <!-- 🛠️ ปรับแก้คอลัมน์จาก col-6 เป็น col-md-6 col-lg-4 เพื่อขยายขนาดการ์ดโปรไฟล์ให้ใหญ่ขึ้นเต็มสเกลหน้าจอ -->
-                        <div class="row g-4 justify-content-center">
-                            <?php foreach ($bySection['personnel'] as $p):
-                                $p_files = parseFileNames($p['file_name'] ?? '');
-                                $p_img = null;
-                                foreach ($p_files as $pf) {
-                                    $pfe = strtolower(pathinfo($pf, PATHINFO_EXTENSION));
-                                    if (in_array($pfe, ['jpg','jpeg','png','gif','webp'])) { $p_img = $pf; break; }
-                                }
-                            ?>
-                                <div class="col-12 d-flex justify-content-center">
-                                    <!-- 🛠️ ฝัง inline style เพิ่มขนาดภาพ (กว้าง 100%) เพื่อให้ภาพพยาบาลดึงความกว้างขยายเต็มเนื้อหาการ์ด ไม่เล็กน่าเกลียด -->
-                                    <div class="personnel-card w-100 p-4  shadow-sm bg-white">
-                                        <?php if ($p_img): ?>
-                                            <img src="uploads/<?= htmlspecialchars($p_img) ?>" class="personnel-img lightbox-trigger img-fluid mx-auto mb-3" alt="" style="width: 100%; height: auto;">
-                                        <?php else: ?>
-                                            <div class="personnel-img personnel-img-placeholder d-flex align-items-center justify-content-center bg-light text-muted mx-auto mb-3" style="width: 100%; height: 220px; font-size: 64px;"><i class="bi bi-person-fill"></i></div>
-                                        <?php endif; ?>
-                                        <div class="personnel-name fw-bold text-dark mb-1" style="font-size: 16px;"><?= htmlspecialchars($p['title']) ?></div>
-                                        <?php if (!empty(trim($p['content'] ?? ''))): ?>
-                                            <div class="personnel-role small text-muted fw-semibold"><?= htmlspecialchars($p['content']) ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-            <?php elseif ($show_all_knowledge): ?>
-                <?php if (empty($bySection['knowledge'])): ?>
-                    <div class="dept-content-card">
-                        <div class="dc-empty-state">
-                            <i class="bi bi-folder-x"></i>
-                            <h3>ไม่พบข้อมูลข่าวสารประชาสัมพันธ์</h3>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="d-flex flex-column gap-4">
-                        <?php foreach ($bySection['knowledge'] as $row): ?>
-                            <div class="dept-content-card">
-                                <h2 class="dc-title"><?= htmlspecialchars($row['title']) ?></h2>
-                                
-                                <div class="dc-meta mb-3">
-                                    <i class="bi bi-calendar3 me-1"></i> <?= dateToThaiFull($row['created_at']) ?>
-                                </div>
-                                
-                                <?php if (!empty($row['content'])): ?>
-                                    <div class="dc-body mb-4"><?= nl2br(htmlspecialchars($row['content'])) ?></div>
-                                <?php endif; ?>
-                                <div class="dc-attachments">
-                                    <?= renderAttachments($row) ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-
-            <?php else: ?>
-                <?php if ($selected_item): ?>
-                    <div class="dept-content-card">
-                        <h2 class="dc-title"><?= htmlspecialchars($selected_item['title']) ?></h2>
-                        <div class="dc-meta mb-3">
-                            <i class="bi bi-calendar3 me-1"></i> <?= dateToThaiFull($selected_item['created_at']) ?>
-                        </div>
-                        <?php if (!empty($selected_item['content'])): ?>
-                            <div class="dc-body mb-4"><?= nl2br(htmlspecialchars($selected_item['content'])) ?></div>
-                        <?php endif; ?>
-                        <div class="dc-attachments">
-                            <?= renderAttachments($selected_item) ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            <?php endif; ?>
-
+        <div class="col-lg-9 col-xl-8" id="deptMainContent">
+            <div class="text-center text-muted py-5"><i class="bi bi-hourglass-split"></i> กำลังโหลดข้อมูล...</div>
         </div>
     </div>
 </div>
 
+<!-- ส่วนท้ายเว็บไซต์: ข้อมูลติดต่อโรงพยาบาลและลิงก์หน่วยงานที่เกี่ยวข้อง -->
 <footer class="main-footer">
     <div class="container">
         <div class="row g-4">
             <div class="col-md-4">
                 <h5><i class="bi bi-building"></i> กลุ่มงานการพยาบาล</h5>
-                <p class="small opacity-80 mt-2">โรงพยาบาลปากช่องนานา<br>มุ่งมั่นในการพัฒนาคุณภาพการพยาบาล เพื่อผู้ป่วยและผู้รับบริการทุกคน</p>
+                <p class="small opacity-80 mt-2">โรงพยาบาลปากช่องนานา<br>มุ่งมั่นในการพัฒนาคุณภาพทางการพยาบาล เพื่อผู้ป่วยและผู้รับบริการทุกคน</p>
             </div>
             <div class="col-md-4">
                 <h5><i class="bi bi-geo-alt-fill"></i> ติดต่อเรา</h5>
@@ -398,10 +172,10 @@ function renderAttachments($row) {
             <div class="col-md-4">
                 <h5><i class="bi bi-link-45deg"></i> ลิงก์ที่เกี่ยวข้อง</h5>
                 <ul class="small opacity-80">
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://moph.go.th/" target="_blank" rel="noopener noreferrer">กระทรวงสาธารณสุข</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.tnmc.or.th/" target="_blank" rel="noopener noreferrer">สภาการพยาบาล</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.dms.go.th/?StartWeb=1" target="_blank" rel="noopener noreferrer">กรมการแพทย์</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.ha.or.th/TH/Home/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81" target="_blank" rel="noopener noreferrer">สรพ. (HA)</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กระทรวงสาธารณสุข</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สภาการพยาบาล</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กรมการแพทย์</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สรพ. (HA)</a></li>
                 </ul>
             </div>
         </div>
@@ -411,6 +185,7 @@ function renderAttachments($row) {
     </div>
 </footer>
 
+<!-- โมดัลแสดงรูปภาพ/PDF แบบเต็มจอ เปิดใช้เมื่อคลิกรูปหรือไฟล์แนบในเนื้อหาที่ดึงมาจาก API -->
 <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered p-0" style="background:rgba(0,0,0,0.92);">
         <div class="modal-content border-0" style="background:transparent;">
@@ -423,8 +198,15 @@ function renderAttachments($row) {
     </div>
 </div>
 
+<!-- โหลด Bootstrap JS, กำหนด DEPT_ID ให้สคริปต์ฝั่ง client รู้ว่ากำลังแสดงแผนกไหน แล้วโหลดสคริปต์ดึง/แสดงข้อมูลแผนกจาก API -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>window.DEPT_ID = <?= (int)$DEPT_ID ?>;</script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/dept-api.js"></script>
+<script src="assets/js/dept-context.js"></script>
+<script src="assets/js/dept-banner.js"></script>
 <script>
+// เปิด/ปิดกล่อง Lightbox แสดงรูปภาพหรือ PDF แบบเต็มจอเมื่อคลิกที่รูป (.lightbox-trigger) หรือไฟล์แนบ (.pdf-lightbox-trigger)
 (function () {
     const modalEl = document.getElementById('lightboxModal');
     const imgEl   = document.getElementById('lightboxImg');

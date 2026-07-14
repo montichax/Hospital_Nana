@@ -31,6 +31,23 @@ router.get("/:id/contents", async (req, res) => {
   }
 });
 
+// GET single department content item by id (joined with department name/link)
+router.get("/contents/item/:contentId", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT dc.*, d.name AS dept_name, d.link_url AS dept_link
+       FROM department_contents dc
+       LEFT JOIN departments d ON d.id = dc.department_id
+       WHERE dc.id = ?`,
+      [req.params.contentId]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: "Not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET contents by section
 router.get("/:id/contents/:section", async (req, res) => {
   try {

@@ -1,19 +1,5 @@
 <?php
-require_once 'connect.php';
-
-function dateToThaiFull($dateStr) {
-    if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';
-    $time = strtotime($dateStr);
-    if (!$time) return htmlspecialchars($dateStr);
-    $d = date('j', $time);
-    $m = date('n', $time);
-    $y = date('Y', $time) + 543;
-    $months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-    return "$d {$months[$m]} $y";
-}
-
-$stmt = $conn->query("SELECT * FROM news ORDER BY id DESC");
-$all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// ข้อมูลข่าวดึงผ่าน Node.js API (fetch ฝั่ง browser) แทน PDO — ดูสคริปต์ท้ายไฟล์
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -22,8 +8,10 @@ $all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ข่าวประชาสัมพันธ์ทั้งหมด - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="all_news.css">
 </head>
@@ -39,7 +27,7 @@ $all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h1><i class="bi bi-megaphone-fill me-2"></i>ข่าวประชาสัมพันธ์ทั้งหมด</h1>
         <a href="index.php" class="btn-back">
-            <i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าแรก
+            <i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าหลัก
         </a>
     </div>
 </div>
@@ -49,29 +37,9 @@ $all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <i class="bi bi-megaphone-fill me-1"></i> รายการข่าวประชาสัมพันธ์
     </div>
 
-    <?php if (empty($all_news)): ?>
-        <div class="empty-state">
-            <i class="bi bi-inbox"></i>
-            <p>ขณะนี้ยังไม่มีข้อมูลข่าวประชาสัมพันธ์</p>
-        </div>
-    <?php else: ?>
-        <div class="news-list-card">
-            <?php foreach ($all_news as $news): ?>
-            <a href="news_detail.php?id=<?= (int)$news['id'] ?>" class="news-row">
-                <div class="news-row-left">
-                    <i class="bi bi-chevron-right small"></i>
-                    <div class="news-row-title">
-                        <?= htmlspecialchars($news['title']) ?>
-                        <?php if (!empty($news['is_new']) && (int)$news['is_new'] === 1): ?>
-                            <span class="badge-new"><i class="bi bi-stars me-1"></i>ใหม่</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="news-row-date"><?= dateToThaiFull($news['created_at']) ?></div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+    <div id="allNewsContainer">
+        <div class="empty-state"><i class="bi bi-hourglass-split"></i><p>กำลังโหลดข่าว...</p></div>
+    </div>
 </div>
 
 <footer class="main-footer">
@@ -93,10 +61,10 @@ $all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-4">
                 <h5><i class="bi bi-link-45deg"></i> ลิงก์ที่เกี่ยวข้อง</h5>
                 <ul class="small opacity-80">
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://moph.go.th/" target="_blank" rel="noopener noreferrer">กระทรวงสาธารณสุข</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.tnmc.or.th/" target="_blank" rel="noopener noreferrer">สภาการพยาบาล</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.dms.go.th/?StartWeb=1" target="_blank" rel="noopener noreferrer">กรมการแพทย์</a></li>
-                    <li><i class="bi bi-chevron-right"></i> <a href="https://www.ha.or.th/TH/Home/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81" target="_blank" rel="noopener noreferrer">สรพ. (HA)</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กระทรวงสาธารณสุข</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สภาการพยาบาล</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">กรมการแพทย์</a></li>
+                    <li><i class="bi bi-chevron-right"></i> <a href="#">สรพ. (HA)</a></li>
                 </ul>
             </div>
         </div>
@@ -109,5 +77,52 @@ $all_news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api-config.js"></script>
+<script>
+(function () {
+    const API_BASE = window.API_BASE;
+
+    function esc(str) {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
+    }
+
+    function dateToThaiFull(dateStr) {
+        if (!dateStr) return 'ไม่ระบุวันที่';
+        const d = new Date(dateStr);
+        if (isNaN(d)) return 'ไม่ระบุวันที่';
+        const months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        return `${d.getDate()} ${months[d.getMonth() + 1]} ${d.getFullYear() + 543}`;
+    }
+
+    function render(list) {
+        const container = document.getElementById('allNewsContainer');
+        if (!list.length) {
+            container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><p>ขณะนี้ยังไม่มีข้อมูลข่าวประชาสัมพันธ์</p></div>';
+            return;
+        }
+        container.innerHTML = '<div class="news-list-card">' + list.map(news => {
+            const badge = Number(news.is_new) === 1
+                ? '<span class="badge-new"><i class="bi bi-stars me-1"></i>ใหม่</span>' : '';
+            return `<a href="news_detail.php?id=${parseInt(news.id, 10)}" class="news-row">
+                        <div class="news-row-left">
+                            <i class="bi bi-chevron-right small"></i>
+                            <div class="news-row-title">${esc(news.title)} ${badge}</div>
+                        </div>
+                        <div class="news-row-date">${dateToThaiFull(news.created_at)}</div>
+                    </a>`;
+        }).join('') + '</div>';
+    }
+
+    fetch(`${API_BASE}/news`)
+        .then(res => res.json())
+        .then(data => render(Array.isArray(data) ? data : []))
+        .catch(() => {
+            document.getElementById('allNewsContainer').innerHTML =
+                '<div class="empty-state"><i class="bi bi-wifi-off"></i><p>ไม่สามารถโหลดข่าวได้ (ตรวจสอบว่า Node.js API server เปิดอยู่หรือไม่)</p></div>';
+        });
+})();
+</script>
 </body>
 </html>

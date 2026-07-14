@@ -77,9 +77,26 @@ $news_list = $stmt_news->fetchAll(PDO::FETCH_ASSOC);
 $stmt_depts = $conn->query("SELECT * FROM departments ORDER BY id ASC");
 $dept_list = $stmt_depts->fetchAll(PDO::FETCH_ASSOC);
 
-// ดึงข้อมูล Banner จาก MySQL
+// ดึงข้อมูล Banner จาก MySQL (เฉพาะ Banner หน้าแรก ไม่รวม Banner ประจำแผนก)
 $stmt_banners = $conn->query("SELECT * FROM banners WHERE is_active = 1 AND department_id IS NULL ORDER BY sort_order ASC, id ASC");
 $banner_list = $stmt_banners->fetchAll(PDO::FETCH_ASSOC);
+
+// รูปรวม + รูปกิจกรรม หน้าแรก (จัดการผ่าน admin.php > หน้าแรก > รูปภาพหน้าแรก)
+$stmt_group_photo = $conn->query("SELECT * FROM department_contents WHERE department_id IS NULL AND section = 'idx_group_photo' ORDER BY sort_order ASC, id ASC LIMIT 1");
+$group_photo = $stmt_group_photo->fetch(PDO::FETCH_ASSOC);
+
+$stmt_activity_photos = $conn->query("SELECT * FROM department_contents WHERE department_id IS NULL AND section = 'idx_activity_photos' ORDER BY sort_order ASC, id ASC");
+$activity_photos = $stmt_activity_photos->fetchAll(PDO::FETCH_ASSOC);
+
+function firstImageFile($fileData) {
+    $decoded = json_decode($fileData, true);
+    $files = is_array($decoded) ? $decoded : (empty($fileData) ? [] : [$fileData]);
+    foreach ($files as $f) {
+        $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) return $f;
+    }
+    return '';
+}
 
 // Fallback ถ้าไม่มี Banner ในฐานข้อมูล
 $nature_imgs = [
@@ -96,16 +113,6 @@ $fallback_banners = [
 ];
 $slides = !empty($banner_list) ? $banner_list : $fallback_banners;
 ?>
-
-$stmt = $conn->query("
-SELECT *
-FROM home_slides
-WHERE is_active = 1
-ORDER BY sort_order,id
-");
-
-$homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -139,7 +146,6 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
 </head>
-
 <body class="home-page">
 <div id="siteHeader">
 <div class="top-bar">
@@ -199,10 +205,10 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน</a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                         <li><a class="dropdown-item" href="vision_mission.php"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
-                        <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบพยาบาล</a></li>
-                        <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
-                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i> บุคลากร</a></li>
+                        <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้าพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="executives.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
+                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2"></i> รูปบุคลากร</a></li>
                     </ul>
                 </div>
 
@@ -210,12 +216,20 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร</a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                        <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
-                        <li><a class="dropdown-item" href="regulations.php"><i class="bi bi-journal-bookmark-fill me-2"></i> คู่มือบริหาร</a></li>
-                        <li><a class="dropdown-item" href="plans_projects.php"><i class="bi bi-clipboard-data-fill me-2"></i> แผนยุทธศาสตร์การพยาบาล</a></li>
-                        <li><a class="dropdown-item" href="staff_dev_plan.php"><i class="bi bi-graph-up-arrow me-2"></i> แผนพัฒนาบุคลากร</a></li>
-                        <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
-                        <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3 me-2"></i>โครงสร้างบริหาร</a></li>
+                        <li><a class="dropdown-item" href="regulations.php"><i class="bi bi-book me-2"></i>คู่มือบริหาร</a></li>
+                        <li><a class="dropdown-item" href="plans_projects.php"><i class="bi bi-bullseye me-2"></i>แผนยุทธศาสตร์การพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="staff_dev_plan.php"><i class="bi bi-person-workspace me-2"></i>แผนพัฒนาบุคลากร</a></li>
+                        <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-check me-2"></i>บริหารความเสี่ยง</a></li>
+                        <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-heart-pulse me-2"></i>จริยธรรมทางการพยาบาล</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="serviceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-clipboard2-check-fill me-1"></i>งานบริการ</a>
+                    <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
+                        <li><a class="dropdown-item" href="supervision_results.php"><i class="bi bi-clipboard-check me-2"></i> ผลการนิเทศ</a></li>
                     </ul>
                 </div>
 
@@ -223,20 +237,20 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ</a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
-                        <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
-                        <li><a class="dropdown-item" href="downloads.php"><i class="bi bi-file-earmark-arrow-down-fill me-2"></i> เอกสารดาวน์โหลด</a></li>
+                        <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database me-2"></i> Data set</a></li>
+                        <li><a class="dropdown-item" href="downloads.php"><i class="bi bi-file-earmark-arrow-down me-2"></i> เอกสารดาวน์โหลด</a></li>
                     </ul>
                 </div>
 
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="qualityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                     <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล</a>
+                     <i class="bi bi-star-fill me-1"></i>คุณภาพทางการพยาบาล</a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
-                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
-                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
-                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
-                        <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
-                        <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
+                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-graph-up-arrow me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-medical me-2"></i> Service profile</a></li>
+                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-journal-medical me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text me-2"></i> WI</a></li>
+                        <li><a class="dropdown-item" href="research.php"><i class="bi bi-search-heart me-2"></i> วิจัย</a></li>
                     </ul>
                 </div>
 
@@ -253,8 +267,8 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์</a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
-                        <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
-                        <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
+                        <li><a class="dropdown-item" href="all_news.php"><i class="bi bi-newspaper me-2"></i> ข่าวสาร</a></li>
+                        <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-file-earmark-text me-2"></i> รายงานการประชุม</a></li>
                     </ul>
                 </div>
 
@@ -316,58 +330,113 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
         " วิสัยทัศน์: กลุ่มงานการพยาบาลที่มีคุณภาพ มาตรฐาน เป็นที่ไว้วางใจของผู้รับบริการ ภายใต้หลักธรรมาภิบาล เพื่อสุขภาวะที่ดีของประชาชน "
     </div>
 </div>
-<!-- =======ประชาสัมพันธ์========== -->
-<div class="container-fluid my-5">
-    <div class="news-frame">
-        <div class="news-wrapper">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold text-dark mb-0"><i class="bi bi-megaphone-fill text-danger"></i> ข่าวประชาสัมพันธ์</h3>
-                <a href="all_news.php" class="text-dark fw-semibold text-decoration-none"> ดูทั้งหมด › </a>
-            </div>
-            <?php if(empty($news_list)): ?>
-                <div class="text-center py-5">ไม่มีข่าวประชาสัมพันธ์</div>
-            <?php else: ?>
-            <?php
-                $newsChunks = array_chunk($news_list,4);
-            ?>
-            <div id="newsCarousel"  class="carousel slide" data-bs-ride="false" data-bs-interval="false">
-                <div class="carousel-inner">
-                    <?php foreach($newsChunks as $page=>$chunk): ?>
-                    <div class="carousel-item <?= $page==0?'active':'' ?>">
-                        <div class="row gx-4 gy-4 justify-content-center">
-                            <?php foreach($chunk as $news):
-                                $img = !empty($news['image_name'])
-                                    ? "uploads/".$news['image_name']
-                                    : "uploads/default.jpg";
-                            ?>
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
-                                <a href="news_detail.php?id=<?= $news['id'] ?>">
-                                    <img src="<?= htmlspecialchars($img) ?>" class="news-slide-img" alt="<?= htmlspecialchars($news['title']) ?>">
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <div class="news-pagination">
-                <?php foreach($newsChunks as $index=>$chunk): ?>
-                    <a href="#" class="page-dot <?= $index==0?'active':'' ?>" data-slide="<?= $index ?>"><?= $index+1 ?></a>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
-            
-        </div>
+
+<!-- ==================== รูปรวม ==================== -->
+<?php if (!empty($group_photo) && firstImageFile($group_photo['file_name'] ?? '')): ?>
+<div class="container my-4">
+    <div class="block-header mb-3">
+        <span class="fs-5 fw-bold"><i class="bi bi-image-fill"></i> ภาพรวมกลุ่มงาน</span>
+    </div>
+    <div class="text-center">
+        <img src="uploads/<?= htmlspecialchars(firstImageFile($group_photo['file_name'])) ?>" alt="<?= htmlspecialchars($group_photo['title'] ?? 'ภาพรวมกลุ่มงาน') ?>" class="img-fluid rounded shadow-sm w-100" style="max-height: 480px; object-fit: cover;">
+        <?php if (!empty($group_photo['content'])): ?>
+            <p class="text-muted small mt-2"><?= htmlspecialchars($group_photo['content']) ?></p>
+        <?php endif; ?>
     </div>
 </div>
+<?php endif; ?>
+<!-- ========================================================================== -->
 
-<!-- =======ตารางปฏิบัติงาน========== -->
+<!-- ==================== รูปกิจกรรม (คลิกเลื่อนดู) ==================== -->
+<?php if (!empty($activity_photos)): ?>
+<div class="container my-4">
+    <div class="block-header mb-0">
+        <span class="fs-5 fw-bold"><i class="bi bi-images"></i> รูปกิจกรรม</span>
+    </div>
+
+    <div class="news-carousel-wrap position-relative">
+        <div class="news-carousel" id="activityCarousel">
+            <?php foreach ($activity_photos as $activity):
+                $activity_img = firstImageFile($activity['file_name'] ?? '');
+            ?>
+            <div class="news-card-item">
+                <a href="<?= $activity_img ? 'uploads/' . htmlspecialchars($activity_img) : '#' ?>" target="_blank" class="news-poster-card" title="<?= htmlspecialchars($activity['title']) ?>">
+                    <?php if ($activity_img): ?>
+                        <img src="uploads/<?= htmlspecialchars($activity_img) ?>" alt="<?= htmlspecialchars($activity['title']) ?>" class="news-poster-img" loading="lazy">
+                    <?php else: ?>
+                        <div class="news-poster-placeholder">
+                            <i class="bi bi-images"></i>
+                            <span>ไม่มีรูปภาพ</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="news-poster-overlay">
+                        <h3 class="news-poster-title"><?= htmlspecialchars($activity['title']) ?></h3>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- ปุ่มเลื่อน -->
+        <button class="news-nav-btn news-nav-prev" id="activityPrev" aria-label="ก่อนหน้า"><i class="bi bi-chevron-left"></i></button>
+        <button class="news-nav-btn news-nav-next" id="activityNext" aria-label="ถัดไป"><i class="bi bi-chevron-right"></i></button>
+    </div>
+</div>
+<?php endif; ?>
+<!-- ========================================================================== -->
+
+<!-- ==================== ข่าวประชาสัมพันธ์ (Carousel) ==================== -->
+<?php if (!empty($news_list)): ?>
+<div class="container my-4">
+    <div class="block-header mb-0">
+        <span class="fs-5 fw-bold"><i class="bi bi-megaphone-fill"></i> ข่าวประชาสัมพันธ์</span>
+        <a href="all_news.php" class="text-white text-decoration-none small">ดูทั้งหมด <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="news-carousel-wrap position-relative">
+        <div class="news-carousel" id="newsCarousel">
+            <?php foreach ($news_list as $idx => $news):
+                // แยกไฟล์แนบ
+                $raw_files = $news['image_name'] ?? '';
+                $files = array_filter(array_map('trim', explode(',', $raw_files)));
+                $first_img = '';
+                foreach ($files as $f) {
+                    $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg','jpeg','png','gif','webp'])) { $first_img = $f; break; }
+                }
+            ?>
+            <div class="news-card-item">
+                <a href="news_detail.php?id=<?= (int)$news['id'] ?>" class="news-poster-card" title="<?= htmlspecialchars($news['title']) ?>">
+                    <?php if ($first_img): ?>
+                        <img src="uploads/<?= htmlspecialchars($first_img) ?>" alt="<?= htmlspecialchars($news['title']) ?>" class="news-poster-img" loading="lazy">
+                    <?php else: ?>
+                        <div class="news-poster-placeholder">
+                            <i class="bi bi-newspaper"></i>
+                            <span>ไม่มีรูปภาพ</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="news-poster-overlay">
+                        <h3 class="news-poster-title"><?= htmlspecialchars($news['title']) ?></h3>
+                        <span class="news-poster-date"><i class="bi bi-calendar3"></i> <?= dateToThaiFull($news['created_at']) ?></span>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- ปุ่มเลื่อน -->
+        <button class="news-nav-btn news-nav-prev" id="newsPrev" aria-label="ก่อนหน้า"><i class="bi bi-chevron-left"></i></button>
+        <button class="news-nav-btn news-nav-next" id="newsNext" aria-label="ถัดไป"><i class="bi bi-chevron-right"></i></button>
+    </div>
+</div>
+<?php endif; ?>
+<!-- ========================================================================== -->
+
 <div class="container my-4">
     <div class="row">
         <div class="col-12">
             <div class="block-header mb-3">
-                <span class="fs-5 fw-bold"><i class="bi bi-calendar-event-fill "></i> ตารางปฏิบัติงาน</span>
+                <span class="fs-5 fw-bold"><i class="bi bi-calendar-event-fill"></i>ตารางปฏิบัติงาน</span>
             </div>
             <!-- กล่องสำหรับแสดงผล AppSheet -->
             <div class="border rounded bg-white shadow-sm overflow-hidden mb-4" style="height: 600px;">
@@ -482,34 +551,36 @@ window.addEventListener('scroll', function() {
     document.getElementById('scrollTopBtn').classList.toggle('show', window.scrollY > 300);
 }, { passive: true });
 
-const carouselElement = document.querySelector('#newsCarousel');
+// Carousel scroll (ข่าวประชาสัมพันธ์ + รูปกิจกรรม — คลิกเลื่อนดู)
+document.addEventListener('DOMContentLoaded', function() {
+    function initScrollCarousel(carouselId, prevId, nextId) {
+        const carousel = document.getElementById(carouselId);
+        const prevBtn  = document.getElementById(prevId);
+        const nextBtn  = document.getElementById(nextId);
+        if (!carousel || !prevBtn || !nextBtn) return;
 
-const carousel = new bootstrap.Carousel(carouselElement,{
-    interval:false,
-    ride:false,
-    wrap:false
-});
-    document.querySelectorAll('.page-dot').forEach(dot=>{
-        dot.addEventListener('click',function(e){
-            e.preventDefault();
-            let page=this.dataset.slide;
-            carousel.to(page);
-        });
-});
-    carouselElement.addEventListener('slid.bs.carousel',function(e){
-        document.querySelectorAll('.page-dot').forEach(dot=>{
-            dot.classList.remove('active');
-        });
-        document
-            .querySelector('.page-dot[data-slide="'+e.to+'"]')
-            .classList.add('active');
+        function getScrollAmount() {
+            const card = carousel.querySelector('.news-card-item');
+            if (!card) return 320;
+            return card.offsetWidth + 20;
+        }
 
+        prevBtn.addEventListener('click', function() {
+            carousel.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function() {
+            carousel.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+        });
+    }
+
+    initScrollCarousel('newsCarousel', 'newsPrev', 'newsNext');
+    initScrollCarousel('activityCarousel', 'activityPrev', 'activityNext');
 });
+
 </script>
 
 <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับด้านบน">
     <i class="bi bi-chevron-up"></i>
 </button>
-
 </body>
 </html>

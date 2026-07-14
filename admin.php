@@ -30,7 +30,7 @@ if ($is_dept_admin) {
     // บังคับ dept_id ให้เป็นแผนกตัวเอง (ป้องกันแอบเข้าแผนกอื่นด้วย ?dept_id=)
     $_GET['dept_id'] = $user_dept_id;
 } else {
-    $active_tab = $_GET['tab'] ?? 'index_page';
+    $active_tab = $_GET['tab'] ?? 'news';
 }
 
 // ฟังก์ชันตรวจสิทธิ์ก่อนแก้ department_contents
@@ -40,6 +40,11 @@ function assertDeptAccess($dept_id_target) {
     if ($is_dept_admin && (int)$dept_id_target === (int)$user_dept_id) return true;
     http_response_code(403);
     die('ไม่มีสิทธิ์เข้าถึงแผนกนี้');
+}
+
+// ฟังก์ชันตั้งข้อความแจ้งเตือนหลังบันทึก/ลบ — เก็บใน session แล้วโชว์ครั้งเดียวหลัง redirect (flash message)
+function setFlash($type, $msg) {
+    $_SESSION['admin_flash'] = ['type' => $type, 'msg' => $msg];
 }
 
 // ฟังก์ชันแปลงรูปแบบวันที่ ค.ศ. เป็น พ.ศ.
@@ -98,38 +103,44 @@ $department_content_sections = [
 
 // หมวดเนื้อหา "ทั่วไป" (ไม่ผูกกับแผนก) — 1 หมวด ต่อ 1 หน้าเว็บกลางขององค์กร (key = ชื่อไฟล์ไม่รวม .php)
 $general_content_sections = [
-    'vision_mission'    => 'วิสัยทัศน์ / พันธกิจ',
-    'nurse_roster'      => 'ทำเนียบพยาบาล',
-    'executives'        => 'ทำเนียบหัวหน้ากลุ่มงาน',
-    'ward_heads'        => 'ทำเนียบหัวหน้างาน',
-    'org_structure'     => 'โครงสร้างบริหาร',
-    'regulations'       => 'คู่มือบริหาร',
-    'plans_projects'    => 'แผนยุทธศาสตร์การพยาบาล',
-    'staff_dev_plan'    => 'แผนพัฒนาบุคลากร',
-    'risk_management'   => 'บริหารความเสี่ยง',
-    'nursing_ethics'    => 'จริยธรรมการพยาบาล',
-    'dataset'           => 'Data set',
-    'downloads'         => 'เอกสารดาวน์โหลด',
-    'kpi'               => 'ตัวชี้วัดคุณภาพ',
-    'service_profile'   => 'Service profile',
-    'cpg'               => 'CNPG',
-    'wi'                => 'WI',
-    'research'          => 'วิจัย',
-    'staffing'          => 'อัตรากำลัง',
-    'workload'          => 'ภาระงาน',
-    'meeting_reports'   => 'รายงานการประชุม',
-    'infection_control' => 'IC / การป้องกันการติดเชื้อ',
-    'knowledge_base'    => 'คลังความรู้ / KM',
-    'patient_safety'    => 'Patient Safety',
-    'training'          => 'อบรม / สัมมนา',
+    'vision_mission'       => 'วิสัยทัศน์ / พันธกิจ',
+    'nurse_roster'         => 'ทำเนียบหัวหน้าพยาบาล',
+    'executives'           => 'ทำเนียบหัวหน้ากลุ่มงาน',
+    'ward_heads'           => 'ทำเนียบหัวหน้างาน',
+    'personnel_gallery'    => 'รูปบุคลากร',
+    'org_structure'        => 'โครงสร้างบริหาร',
+    'regulations'          => 'คู่มือบริหาร',
+    'plans_projects'       => 'แผนยุทธศาสตร์การพยาบาล',
+    'staff_dev_plan'       => 'แผนพัฒนาบุคลากร',
+    'risk_management'      => 'บริหารความเสี่ยง',
+    'nursing_ethics'       => 'จริยธรรมการพยาบาล',
+    'supervision_results'  => 'ผลการนิเทศ',
+    'dataset'              => 'Data set',
+    'downloads'            => 'เอกสารดาวน์โหลด',
+    'kpi'                  => 'ตัวชี้วัดคุณภาพ',
+    'service_profile'      => 'Service profile',
+    'cpg'                  => 'CNPG',
+    'wi'                   => 'WI',
+    'research'             => 'วิจัย',
+    'staffing'             => 'อัตรากำลัง',
+    'workload'             => 'ภาระงาน',
+    'meeting_reports'      => 'รายงานการประชุม',
+    'infection_control'    => 'IC / การป้องกันการติดเชื้อ',
+    'knowledge_base'       => 'คลังความรู้ / KM',
+    'patient_safety'       => 'Patient Safety',
+    'training'             => 'อบรม / สัมมนา',
 ];
 
 // หมวดเนื้อหา "หน้าหลัก (index)" — เก็บใน department_contents โดย department_id = NULL, section ขึ้นต้นด้วย "idx_"
 // จัดกลุ่มตามเมนูหลักของ index.php — ใช้ $index_page_groups สำหรับ <optgroup> ใน dropdown
 $index_page_groups = [
+    'รูปภาพหน้าแรก' => [
+        'idx_group_photo'     => 'รูปรวม (หน้าแรก)',
+        'idx_activity_photos' => 'รูปกิจกรรม (หน้าแรก, เลื่อนดู)',
+    ],
     'เกี่ยวกับกลุ่มงาน' => [
         'idx_vision_mission' => 'วิสัยทัศน์ / พันธกิจ',
-        'idx_nurse_roster'   => 'ทำเนียบพยาบาล',
+        'idx_nurse_roster'   => 'ทำเนียบหัวหน้าพยาบาล',
         'idx_executives'     => 'ทำเนียบหัวหน้ากลุ่มงาน',
         'idx_ward_heads'     => 'ทำเนียบหัวหน้างาน',
     ],
@@ -145,7 +156,7 @@ $index_page_groups = [
         'idx_dataset'   => 'Data set',
         'idx_downloads' => 'เอกสารดาวน์โหลด',
     ],
-    'คุณภาพการพยาบาล' => [
+    'คุณภาพทางการพยาบาล' => [
         'idx_kpi'             => 'ตัวชี้วัดคุณภาพ',
         'idx_service_profile' => 'Service profile',
         'idx_cpg'             => 'CNPG',
@@ -156,7 +167,7 @@ $index_page_groups = [
         'idx_staffing'  => 'อัตรากำลัง',
         'idx_workload'  => 'ภาระงาน',
     ],
-    'ข่าวสารประชาสัมพันธ์' => [
+    'ข่าวประชาสัมพันธ์' => [
         'idx_news'            => 'ข่าวสาร',
         'idx_meeting_reports' => 'รายงานการประชุม',
     ],
@@ -326,61 +337,99 @@ if ($is_main_admin) {
 
 // [0.5] หน้าหลัก (index_page) — เก็บใน department_contents โดย department_id = NULL
 if (isset($_POST['action_index_page'])) {
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
     $idx_section  = $_POST['section'] ?? 'idx_news';
     if (!isset($index_page_sections[$idx_section])) $idx_section = 'idx_news';
     $sort_order   = max(1, (int)($_POST['sort_order'] ?? 1));
     $link_url     = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
     $file_name    = uploadMultipleAdminFiles('content_file', 'idx', $_POST['old_file'] ?? '');
 
-    if ($_POST['action_index_page'] == 'create') {
-        $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (NULL, :section, :title, :content, :file_name, :link_url, :sort_order)");
-        $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
-    } elseif ($_POST['action_index_page'] == 'update') {
-        $stmt = $conn->prepare("UPDATE department_contents SET section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id AND department_id IS NULL");
-        $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+    try {
+        if ($_POST['action_index_page'] == 'create') {
+            $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (NULL, :section, :title, :content, :file_name, :link_url, :sort_order)");
+            $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
+            setFlash('success', 'เพิ่มข้อมูลหน้าหลักเรียบร้อยแล้ว');
+        } elseif ($_POST['action_index_page'] == 'update') {
+            $stmt = $conn->prepare("UPDATE department_contents SET section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id AND department_id IS NULL");
+            $stmt->execute([':section' => $idx_section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+            setFlash('success', 'บันทึกการแก้ไขเรียบร้อยแล้ว');
+        }
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
     header("Location: admin.php?tab=index_page&idx_section=" . urlencode($idx_section)); exit;
 }
 if (isset($_GET['del_index_page'])) {
-    $conn->prepare("DELETE FROM department_contents WHERE id=:id AND department_id IS NULL")->execute([':id' => (int)$_GET['del_index_page']]);
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
+    try {
+        $conn->prepare("DELETE FROM department_contents WHERE id=:id AND department_id IS NULL")->execute([':id' => (int)$_GET['del_index_page']]);
+        setFlash('success', 'ลบข้อมูลเรียบร้อยแล้ว');
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    }
     header("Location: admin.php?tab=index_page&idx_section=" . urlencode($_GET['idx_section'] ?? '')); exit;
 }
 
 // [1] ข่าว
 if (isset($_POST['action_news'])) {
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
     $file_name    = uploadMultipleAdminFiles('image', 'news', $_POST['old_image'] ?? 'default.jpg');
     $is_new_status = isset($_POST['is_new']) ? 1 : 0;
     $created_at   = !empty($_POST['created_at']) ? $_POST['created_at'] : date('Y-m-d');
     $link_url     = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
 
-    if ($_POST['action_news'] == 'create') {
-        $stmt = $conn->prepare("INSERT INTO news (title, content, created_at, image_name, is_new, link_url) VALUES (:title, :content, :created_at, :image_name, :is_new, :link_url)");
-        $stmt->execute([':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':created_at' => $created_at, ':image_name' => $file_name, ':is_new' => $is_new_status, ':link_url' => $link_url]);
-    } elseif ($_POST['action_news'] == 'update') {
-        $stmt = $conn->prepare("UPDATE news SET title=:title, content=:content, created_at=:created_at, image_name=:image_name, is_new=:is_new, link_url=:link_url WHERE id=:id");
-        $stmt->execute([':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':created_at' => $created_at, ':image_name' => $file_name, ':is_new' => $is_new_status, ':link_url' => $link_url, ':id' => $_POST['id']]);
+    try {
+        if ($_POST['action_news'] == 'create') {
+            $stmt = $conn->prepare("INSERT INTO news (title, content, created_at, image_name, is_new, link_url) VALUES (:title, :content, :created_at, :image_name, :is_new, :link_url)");
+            $stmt->execute([':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':created_at' => $created_at, ':image_name' => $file_name, ':is_new' => $is_new_status, ':link_url' => $link_url]);
+            setFlash('success', 'เพิ่มข่าวเรียบร้อยแล้ว');
+        } elseif ($_POST['action_news'] == 'update') {
+            $stmt = $conn->prepare("UPDATE news SET title=:title, content=:content, created_at=:created_at, image_name=:image_name, is_new=:is_new, link_url=:link_url WHERE id=:id");
+            $stmt->execute([':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':created_at' => $created_at, ':image_name' => $file_name, ':is_new' => $is_new_status, ':link_url' => $link_url, ':id' => $_POST['id']]);
+            setFlash('success', 'บันทึกการแก้ไขข่าวเรียบร้อยแล้ว');
+        }
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
-    header("Location: admin.php?tab=news"); exit;
+    header("Location: admin.php?tab=index_page&idx_section=idx_news"); exit;
 }
 if (isset($_GET['del_news'])) {
-    $conn->prepare("DELETE FROM news WHERE id=:id")->execute([':id' => $_GET['del_news']]);
-    header("Location: admin.php?tab=news"); exit;
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
+    try {
+        $conn->prepare("DELETE FROM news WHERE id=:id")->execute([':id' => $_GET['del_news']]);
+        setFlash('success', 'ลบข่าวเรียบร้อยแล้ว');
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    }
+    header("Location: admin.php?tab=index_page&idx_section=idx_news"); exit;
 }
 
 // [2] หน่วยงาน (departments)
 if (isset($_POST['action_dept'])) {
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
     $link_url = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
-    if ($_POST['action_dept'] == 'create') {
-        $conn->prepare("INSERT INTO departments (name, link_url) VALUES (:name, :link_url)")->execute([':name' => $_POST['name'], ':link_url' => $link_url]);
-    } elseif ($_POST['action_dept'] == 'update') {
-        $conn->prepare("UPDATE departments SET name=:name, link_url=:link_url WHERE id=:id")->execute([':name' => $_POST['name'], ':link_url' => $link_url, ':id' => $_POST['id']]);
+    try {
+        if ($_POST['action_dept'] == 'create') {
+            $conn->prepare("INSERT INTO departments (name, link_url) VALUES (:name, :link_url)")->execute([':name' => $_POST['name'], ':link_url' => $link_url]);
+            setFlash('success', 'เพิ่มหน่วยงานเรียบร้อยแล้ว');
+        } elseif ($_POST['action_dept'] == 'update') {
+            $conn->prepare("UPDATE departments SET name=:name, link_url=:link_url WHERE id=:id")->execute([':name' => $_POST['name'], ':link_url' => $link_url, ':id' => $_POST['id']]);
+            setFlash('success', 'บันทึกการแก้ไขเรียบร้อยแล้ว');
+        }
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
     header("Location: admin.php?tab=departments"); exit;
 }
 if (isset($_GET['del_dept'])) {
     if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
-    $conn->prepare("DELETE FROM department_contents WHERE department_id=:id")->execute([':id' => $_GET['del_dept']]);
-    $conn->prepare("DELETE FROM departments WHERE id=:id")->execute([':id' => $_GET['del_dept']]);
+    try {
+        $conn->prepare("DELETE FROM department_contents WHERE department_id=:id")->execute([':id' => $_GET['del_dept']]);
+        $conn->prepare("DELETE FROM departments WHERE id=:id")->execute([':id' => $_GET['del_dept']]);
+        setFlash('success', 'ลบหน่วยงานเรียบร้อยแล้ว');
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    }
     header("Location: admin.php?tab=departments"); exit;
 }
 
@@ -405,12 +454,18 @@ if (isset($_POST['action_dept_content'])) {
     $link_url      = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
     $file_name     = uploadMultipleAdminFiles('content_file', 'dept_content', $_POST['old_file'] ?? '');
 
-    if ($_POST['action_dept_content'] == 'create') {
-        $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (:department_id, :section, :title, :content, :file_name, :link_url, :sort_order)");
-        $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
-    } elseif ($_POST['action_dept_content'] == 'update') {
-        $stmt = $conn->prepare("UPDATE department_contents SET department_id=:department_id, section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id");
-        $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+    try {
+        if ($_POST['action_dept_content'] == 'create') {
+            $stmt = $conn->prepare("INSERT INTO department_contents (department_id, section, title, content, file_name, link_url, sort_order) VALUES (:department_id, :section, :title, :content, :file_name, :link_url, :sort_order)");
+            $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order]);
+            setFlash('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
+        } elseif ($_POST['action_dept_content'] == 'update') {
+            $stmt = $conn->prepare("UPDATE department_contents SET department_id=:department_id, section=:section, title=:title, content=:content, file_name=:file_name, link_url=:link_url, sort_order=:sort_order WHERE id=:id");
+            $stmt->execute([':department_id' => $department_id_db, ':section' => $section, ':title' => $_POST['title'], ':content' => $_POST['content'] ?? '', ':file_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':id' => $_POST['id']]);
+            setFlash('success', 'บันทึกการแก้ไขเรียบร้อยแล้ว');
+        }
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
     $redirect_dept    = $is_general_submit ? (int)($_POST['department_id'] ?? 0) : $department_id_db;
     $redirect_section = $submitted_section; // เก็บ prefix g_ ไว้ตามเดิมถ้ามี เพื่อกลับไปหน้าเดิมที่กำลังกรองอยู่
@@ -424,29 +479,47 @@ if (isset($_GET['del_dept_content'])) {
     if ($check_row) assertDeptAccess($check_row['department_id']);
     $redirect_dept    = (int)($_GET['dept_id'] ?? 0);
     $redirect_section = $_GET['section'] ?? '';
-    $conn->prepare("DELETE FROM department_contents WHERE id=:id")->execute([':id' => $_GET['del_dept_content']]);
+    try {
+        $conn->prepare("DELETE FROM department_contents WHERE id=:id")->execute([':id' => $_GET['del_dept_content']]);
+        setFlash('success', 'ลบข้อมูลเรียบร้อยแล้ว');
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    }
     header("Location: admin.php?tab=dept_contents&dept_id=" . $redirect_dept . "&section=" . urlencode($redirect_section)); exit;
 }
 
 // [4] Banner / Slider
 if (isset($_POST['action_banner'])) {
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
     $file_name     = uploadAdminFile('banner_image', 'banner', $_POST['old_image'] ?? '');
     $is_active     = isset($_POST['is_active']) ? 1 : 0;
     $sort_order    = max(1, (int)($_POST['sort_order'] ?? 1));
     $link_url      = !empty($_POST['link_url']) ? $_POST['link_url'] : null;
     $department_id = !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null;
 
-    if ($_POST['action_banner'] == 'create') {
-        $stmt = $conn->prepare("INSERT INTO banners (department_id, title, subtitle, image_name, link_url, sort_order, is_active) VALUES (:department_id, :title, :subtitle, :image_name, :link_url, :sort_order, :is_active)");
-        $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active]);
-    } elseif ($_POST['action_banner'] == 'update') {
-        $stmt = $conn->prepare("UPDATE banners SET department_id=:department_id, title=:title, subtitle=:subtitle, image_name=:image_name, link_url=:link_url, sort_order=:sort_order, is_active=:is_active WHERE id=:id");
-        $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active, ':id' => $_POST['id']]);
+    try {
+        if ($_POST['action_banner'] == 'create') {
+            $stmt = $conn->prepare("INSERT INTO banners (department_id, title, subtitle, image_name, link_url, sort_order, is_active) VALUES (:department_id, :title, :subtitle, :image_name, :link_url, :sort_order, :is_active)");
+            $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active]);
+            setFlash('success', 'เพิ่ม Banner เรียบร้อยแล้ว');
+        } elseif ($_POST['action_banner'] == 'update') {
+            $stmt = $conn->prepare("UPDATE banners SET department_id=:department_id, title=:title, subtitle=:subtitle, image_name=:image_name, link_url=:link_url, sort_order=:sort_order, is_active=:is_active WHERE id=:id");
+            $stmt->execute([':department_id' => $department_id, ':title' => $_POST['title'], ':subtitle' => $_POST['subtitle'] ?? '', ':image_name' => $file_name ?: null, ':link_url' => $link_url, ':sort_order' => $sort_order, ':is_active' => $is_active, ':id' => $_POST['id']]);
+            setFlash('success', 'บันทึกการแก้ไข Banner เรียบร้อยแล้ว');
+        }
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
     }
     header("Location: admin.php?tab=banners"); exit;
 }
 if (isset($_GET['del_banner'])) {
-    $conn->prepare("DELETE FROM banners WHERE id=:id")->execute([':id' => $_GET['del_banner']]);
+    if (!$is_main_admin) { http_response_code(403); die('เฉพาะ admin หลัก'); }
+    try {
+        $conn->prepare("DELETE FROM banners WHERE id=:id")->execute([':id' => $_GET['del_banner']]);
+        setFlash('success', 'ลบ Banner เรียบร้อยแล้ว');
+    } catch (PDOException $e) {
+        setFlash('danger', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    }
     header("Location: admin.php?tab=banners"); exit;
 }
 
@@ -473,16 +546,19 @@ $selected_dept_section  = (!$selected_is_general && $selected_section !== '' && 
 $selected_idx_section = (string)($_GET['idx_section'] ?? '');
 $selected_idx_section = isset($index_page_sections[$selected_idx_section]) ? $selected_idx_section : '';
 
-if ($active_tab == 'index_page') {
+if ($active_tab == 'index_page' && $selected_idx_section === 'idx_news') {
+    // "ข่าวสาร" ในหน้าหลัก ใช้ตาราง news ตัวเดียวกับที่ index.php/all_news.php/news_detail.php อ่านจริง ไม่ใช่ department_contents เหมือนหมวดอื่น
+    $news_items = $conn->query("SELECT * FROM news ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+} elseif ($active_tab == 'index_page') {
     if ($selected_idx_section !== '') {
         $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id IS NULL AND section = :section ORDER BY sort_order ASC, id DESC");
         $stmt->execute([':section' => $selected_idx_section]);
     } else {
-        // แสดงทุกหมวดของหน้าหลัก
-        $idx_keys = array_keys($index_page_sections);
+        // แสดงทุกหมวดของหน้าหลัก (ยกเว้น idx_news ที่แยกไปอยู่ตาราง news แล้ว)
+        $idx_keys = array_diff(array_keys($index_page_sections), ['idx_news']);
         $placeholders = implode(',', array_fill(0, count($idx_keys), '?'));
         $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id IS NULL AND section IN ($placeholders) ORDER BY section ASC, sort_order ASC, id DESC");
-        $stmt->execute($idx_keys);
+        $stmt->execute(array_values($idx_keys));
     }
     $index_page_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } elseif ($active_tab == 'news') {
@@ -719,6 +795,13 @@ if ($active_tab == 'index_page') {
 
     <div class="tab-content bg-white p-4 border rounded-bottom shadow-sm">
 
+        <?php if ($admin_flash = $_SESSION['admin_flash'] ?? null): unset($_SESSION['admin_flash']); ?>
+            <div class="alert alert-<?= htmlspecialchars($admin_flash['type']) ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($admin_flash['msg']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <?php if($active_tab == 'index_page'): ?>
         <div>
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -745,6 +828,107 @@ if ($active_tab == 'index_page') {
                     </div>
                 </form>
 
+                <?php if ($selected_idx_section === 'idx_news'): ?>
+                <!-- ฟอร์มเพิ่ม/แก้ไขข่าว — ข่าวเก็บในตาราง news แยกจากหมวดอื่น เพราะเป็นตารางเดียวกับที่ index.php/all_news.php/news_detail.php ใช้แสดงผลจริง -->
+                <p class="text-muted small mb-2"><i class="bi bi-info-circle"></i> ข่าวที่เพิ่มที่นี่จะแสดงบนหน้า "ข่าวสาร" และหน้ารายละเอียดข่าวของเว็บไซต์จริง</p>
+                <form action="admin.php?tab=index_page&idx_section=idx_news" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action_news" value="create">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">หัวข้อข่าว <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">วันที่ของข่าว <span class="text-danger">*</span></label>
+                            <input type="text" name="created_at" id="news_date_picker" class="form-control bg-white" required>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">ลิงก์หน้าข่าวสารเพิ่มเติมภายนอก</label>
+                        <input type="url" name="link_url" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">เนื้อหาข่าวแบบละเอียด</label>
+                        <textarea name="content" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">รูปภาพ / ไฟล์แนบ</label>
+                            <input type="file" name="image[]" class="form-control" accept="image/*,application/pdf" multiple>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch p-2 border rounded bg-white">
+                                <input class="form-check-input ms-1" type="checkbox" name="is_new" id="news_is_new" value="1" checked>
+                                <label class="form-check-label ms-2" for="news_is_new">เปิดแสดงป้าย "ใหม่"</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end mt-2">
+                        <button type="submit" class="btn btn-hospital-orange">+ เพิ่มข่าว</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-table-scroll mt-4">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th width="12%">รูปภาพ</th>
+                        <th>หัวข้อ / เนื้อหา / ลิงก์</th>
+                        <th width="12%">วันที่</th>
+                        <th width="9%">ป้าย</th>
+                        <th width="15%">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(empty($news_items)): ?>
+                        <tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มีข่าว — กรุณาเพิ่มด้านบน</td></tr>
+                    <?php endif; ?>
+                    <?php foreach($news_items as $row):
+                        $news_files = parseFileNames($row['image_name'] ?? '');
+                        $news_thumb = $news_files[0] ?? '';
+                    ?>
+                    <tr>
+                        <td>
+                            <?php if(!empty($news_thumb) && $news_thumb !== 'default.jpg'): ?>
+                                <img src="uploads/<?= htmlspecialchars($news_thumb) ?>" class="banner-thumb" onerror="this.src='https://placehold.co/100x60?text=No+Img'">
+                            <?php else: ?>
+                                <span class="badge bg-secondary">ไม่มีรูป</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <strong><?= htmlspecialchars($row['title']) ?></strong>
+                            <div class="small text-muted text-preview-short"><?php
+                                $news_preview = mb_substr($row['content'] ?? '', 0, 100, 'UTF-8');
+                                echo htmlspecialchars($news_preview);
+                                if (mb_strlen($row['content'] ?? '', 'UTF-8') > 100) echo '...';
+                            ?></div>
+                            <?php if(!empty($row['link_url'])): ?>
+                                <div class="small mt-1"><i class="bi bi-link-45deg text-primary"></i> <a href="<?= htmlspecialchars($row['link_url']) ?>" target="_blank" class="text-decoration-none"><?= htmlspecialchars($row['link_url']) ?></a></div>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= dateToThaiText($row['created_at']) ?></td>
+                        <td>
+                            <?php if((int)($row['is_new'] ?? 0) === 1): ?>
+                                <span class="badge bg-warning text-dark">ใหม่</span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary">ปกติ</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-edit-style btn-sm me-1"
+                                onclick='editNews(<?= (int)$row["id"] ?>, <?= json_encode($row["title"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["content"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["created_at"], JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($row["image_name"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= (int)($row["is_new"] ?? 0) ?>, <?= json_encode($row["link_url"] ?? "", JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>)'>
+                                แก้ไข
+                            </button>
+                            <a href="admin.php?tab=index_page&idx_section=idx_news&del_news=<?= $row['id'] ?>" class="btn btn-outline-delete-style btn-sm" onclick="return confirm('ต้องการลบข่าวนี้หรือไม่?')">ลบ</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+
+                <?php else: ?>
                 <!-- ฟอร์มเพิ่ม/แก้ไข -->
                 <?php
                     $idx_create_section = $selected_idx_section !== '' ? $selected_idx_section : array_key_first($index_page_sections);
@@ -868,6 +1052,7 @@ if ($active_tab == 'index_page') {
             </table>
             </div>
         </div>
+        <?php endif; ?>
         <?php endif; ?>
 
         <?php if($active_tab == 'departments'): ?>
@@ -1270,7 +1455,7 @@ if ($active_tab == 'index_page') {
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold">ชื่อที่แสดง</label>
-                        <input type="text" name="u_display_name" class="form-control" placeholder="เช่น หัวหน้าแผนกกุมารเวช">
+                        <input type="text" name="u_display_name" class="form-control" placeholder="เช่น หัวหน้าแผนกกุมารเวชกรรม">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold">ประเภทผู้ใช้</label>
@@ -1520,7 +1705,7 @@ function formatYearToThai(instance) {
     }
 }
 
-<?php if($active_tab == 'news'): ?>
+<?php if($active_tab == 'index_page'): ?>
     const mainPicker      = flatpickr("#news_date_picker", flatpickrConfig);
     const modalNewsPicker = flatpickr("#edit_news_date",   flatpickrConfig);
 <?php endif; ?>
