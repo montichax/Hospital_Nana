@@ -104,8 +104,6 @@ WHERE is_active = 1
 ORDER BY sort_order,id
 ");
 
-$homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -199,7 +197,7 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน</a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                         <li><a class="dropdown-item" href="vision_mission.php"><i class="bi bi-eye-fill me-2"></i> วิสัยทัศน์ / พันธกิจ</a></li>
-                        <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้าพยาบาล</a></li>
                         <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
                         <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
                         <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i> บุคลากร</a></li>
@@ -234,7 +232,7 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
                         <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
                         <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
-                        <li><a class="dropdown-item" href="cpg.php?id=<?= isset($DEPT_ID) ? (int)$DEPT_ID : 1 ?>"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="cpg.php"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
                         <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
                         <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
                     </ul>
@@ -253,7 +251,7 @@ $homeSlides = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-bell-fill me-1"></i>ข่าวประชาสัมพันธ์</a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
-                        <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
+                        <li><a class="dropdown-item" href="all_news.php"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารทั้งหมด</a></li>
                         <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
                     </ul>
                 </div>

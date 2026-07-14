@@ -5,8 +5,7 @@
 // =====================================================================
 require_once 'connect.php';
 
-$DEPT_ID   = 1;
-$DEPT_NAME = 'กุมารเวช';
+$DEPT_ID = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 function dateToThaiFull($dateStr) {
     if (empty($dateStr) || $dateStr == '0000-00-00') return 'ไม่ระบุวันที่';
@@ -31,7 +30,13 @@ function parseFileNames($fileData) {
 $stmt = $conn->prepare("SELECT * FROM departments WHERE id = :id");
 $stmt->execute([':id' => $DEPT_ID]);
 $dept = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$dept) $dept = ['id' => $DEPT_ID, 'name' => $DEPT_NAME, 'link_url' => null];
+if ($DEPT_ID !== null) {
+    $stmt = $conn->prepare("SELECT * FROM departments WHERE id = :id");
+    $stmt->execute([':id' => $DEPT_ID]);
+    $dept = $stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    $dept = null;
+}
 
 // ---------- Banner ของแผนก ----------
 $stmt = $conn->prepare("
@@ -121,7 +126,7 @@ function renderAttachments($row) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Profile - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
+    <title>วิสัยทัศน์ / พันธกิจ - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,7 +152,7 @@ function renderAttachments($row) {
             <img src="uploads/logo.png" alt="Logo" style="width: 65px; height: 70px; object-fit: contain;">
         </div>
         <div>
-            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90">· <?= htmlspecialchars($dept['name']) ?></span></h2>
+            <h2 class="mb-0 fw-bold">กลุ่มงานการพยาบาล <span class="fw-normal opacity-90"><?= $dept ? htmlspecialchars($dept['name']) : '' ?></span></h2>
             <div class="small opacity-90">โรงพยาบาลปากช่องนานา | Nursing Department, Pakchong Nana Hospital</div>
         </div>
     </div>
@@ -160,15 +165,15 @@ function renderAttachments($row) {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav">
-                <a class="nav-link" href="index.php"><i class="bi bi-house-door-fill"></i> หน้าแรก</a>
+
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-building me-1"></i>เกี่ยวกับกลุ่มงาน
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
-                        <li><a class="dropdown-item" href="executives.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
-                        <li><a class="dropdown-item" href="ward_heads.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery.php"><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'executives.php?id=' . (int)$DEPT_ID : 'executives.php' ?>"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'ward_heads.php?id=' . (int)$DEPT_ID : 'ward_heads.php' ?>"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'personnel_gallery.php?id=' . (int)$DEPT_ID : 'personnel_gallery.php' ?>"><i class="bi bi-people-fill me-2 "></i>รูปบุคลากร</a></li>
                     </ul>
                 </div>
 
@@ -177,9 +182,9 @@ function renderAttachments($row) {
                         <i class="bi bi-briefcase-fill me-1"></i>งานบริหาร
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                        <li><a class="dropdown-item" href="org_structure.php"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
-                        <li><a class="dropdown-item" href="risk_management.php"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
-                        <li><a class="dropdown-item" href="nursing_ethics.php"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'org_structure.php?id=' . (int)$DEPT_ID : 'org_structure.php' ?>"><i class="bi bi-diagram-3-fill me-2"></i> โครงสร้างบริหาร</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'risk_management.php?id=' . (int)$DEPT_ID : 'risk_management.php' ?>"><i class="bi bi-shield-exclamation me-2"></i> บริหารความเสี่ยง</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'nursing_ethics.php?id=' . (int)$DEPT_ID : 'nursing_ethics.php' ?>"><i class="bi bi-patch-check-fill me-2"></i> จริยธรรมการพยาบาล</a></li>
                     </ul>
                 </div>
 
@@ -188,7 +193,7 @@ function renderAttachments($row) {
                         <i class="bi bi-mortarboard-fill me-1"></i>งานวิชาการ
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="academicDropdown">
-                        <li><a class="dropdown-item" href="dataset.php"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'dataset.php?id=' . (int)$DEPT_ID : 'dataset.php' ?>"><i class="bi bi-database-fill me-2"></i> Data set</a></li>
                     </ul>
                 </div>
 
@@ -197,11 +202,11 @@ function renderAttachments($row) {
                         <i class="bi bi-star-fill me-1"></i>คุณภาพการพยาบาล
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="qualityDropdown">
-                        <li><a class="dropdown-item" href="kpi.php"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
-                        <li><a class="dropdown-item" href="service_profile.php"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
-                        <li><a class="dropdown-item" href="cpg.php?id=<?= isset($DEPT_ID) ? (int)$DEPT_ID : 1 ?>"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
-                        <li><a class="dropdown-item" href="wi.php"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
-                        <li><a class="dropdown-item" href="research.php"><i class="bi bi-search me-2"></i> วิจัย</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'kpi.php?id=' . (int)$DEPT_ID : 'kpi.php' ?>"><i class="bi bi-bar-chart-fill me-2"></i> ตัวชี้วัดคุณภาพ</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'service_profile.php?id=' . (int)$DEPT_ID : 'service_profile.php' ?>"><i class="bi bi-file-earmark-person-fill me-2"></i> Service profile</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'cpg.php?id=' . (int)$DEPT_ID : 'cpg.php' ?>"><i class="bi bi-clipboard2-pulse-fill me-2"></i> CNPG</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'wi.php?id=' . (int)$DEPT_ID : 'wi.php' ?>"><i class="bi bi-file-earmark-text-fill me-2"></i> WI</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'research.php?id=' . (int)$DEPT_ID : 'research.php' ?>"><i class="bi bi-search me-2"></i> วิจัย</a></li>
                     </ul>
                 </div>
 
@@ -210,8 +215,8 @@ function renderAttachments($row) {
                         <i class="bi bi-lightbulb-fill me-1"></i>งานสารสนเทศ
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="infoDropdown">
-                        <li><a class="dropdown-item" href="staffing.php"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
-                        <li><a class="dropdown-item" href="workload.php"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'staffing.php?id=' . (int)$DEPT_ID : 'staffing.php' ?>"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'workload.php?id=' . (int)$DEPT_ID : 'workload.php' ?>"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
                     </ul>
                 </div>
 
@@ -221,7 +226,7 @@ function renderAttachments($row) {
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
                         <li><a class="dropdown-item active" href="<?= basename($_SERVER['PHP_SELF']) ?>"><i class="bi bi-megaphone-fill me-2"></i> ข่าวสารของแผนก</a></li>
-                        <li><a class="dropdown-item" href="meeting_reports.php"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'meeting_reports.php?id=' . (int)$DEPT_ID : 'meeting_reports.php' ?>"><i class="bi bi-journal-text me-2"></i> รายงานการประชุม</a></li>
                     </ul>
                 </div>
                 <a href="index.php" class="btn-back nav-btn-back ms-auto"><i class="bi bi-arrow-left-circle-fill"></i> กลับหน้าหลัก</a>

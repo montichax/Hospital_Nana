@@ -3,8 +3,62 @@
    ใช้คู่กับ style.css (โหลด style.css ก่อนเสมอ เพื่อใช้ตัวแปรสี --hosp-orange)
    =================================================== */
 
-body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
+body {
+    background-color: #f8f4f0;
+    font-family: "Sarabun", sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
+body.dept-page,
+body:has(.top-bar) {
+    padding-top: 193px;
+}
+
+body.dept-page .top-bar,
+body.dept-page .header-banner,
+body.dept-page .main-nav,
+body:has(.top-bar) .top-bar,
+body:has(.top-bar) .header-banner,
+body:has(.top-bar) .main-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    width: 100%;
+}
+
+body.dept-page .top-bar,
+body:has(.top-bar) .top-bar {
+    top: 0;
+}
+
+body.dept-page .header-banner,
+body:has(.top-bar) .header-banner {
+    top: 38px;
+    height: 104px;      /* กำหนดความสูงของแบนเนอร์ */
+    display: flex;
+    align-items: center; /* จัดให้อยู่กึ่งกลางบน-ล่าง */
+}
+
+body.dept-page .top-bar .container,
+body:has(.top-bar) .top-bar .container {
+    height: 38px;
+    display: flex;
+    align-items: center;
+}
+body.dept-page .main-nav,
+body:has(.top-bar) .main-nav {
+    top: 142px;
+}
+
+.top-bar {
+    background-color: var(--hosp-orange-dark);
+    color: #ffffff;
+    font-size: 14px;
+    padding: 0 0;
+    
+}
 
 /* ---------- ส่วนหัวของหน้า ---------- */
 .dept-page-header {
@@ -34,8 +88,6 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
     transition: background 0.2s;
 }
 .btn-back:hover { background-color: #ffe8d6; color: var(--hosp-orange-dark); }
-
-.main-nav .nav-btn-back { align-self: center; margin: 8px 18px; }
 
 /* ==================== เมนูต้นไม้ด้านซ้าย ==================== */
 .dept-tree {
@@ -220,6 +272,24 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
 .dc-btn-grey:hover { background-color: #5a6268; }
 .dc-btn-light { background-color: #efe5da; color: var(--hosp-orange-dark); }
 .dc-btn-light:hover { background-color: #e6d8c8; color: var(--hosp-orange-dark); }
+.btn-back {
+    background-color: #fff;
+    color: var(--hosp-orange-dark);
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    
+}
+.btn-back:hover { background-color: #ffe8d6; color: var(--hosp-orange-dark); }
+
+.main-nav .nav-btn-back { align-self: center; margin: 8px 8px; }
 
 .dc-body {
     font-size: 15px;
@@ -305,12 +375,6 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
 }
 .main-nav .dropdown-item:last-child { border-bottom: none; }
 .main-nav .dropdown-item:hover { background-color: var(--hosp-orange-dark) !important; }
-.main-nav .dropdown-item.active,
-.main-nav .dropdown-item:active {
-    background-color: #ffffff !important;
-    color: var(--hosp-orange-dark) !important;
-    font-weight: 700;
-}
 
 /* Hover เปิด dropdown บน desktop (copy จาก index.css) */
 @media (min-width: 992px) {
@@ -339,7 +403,10 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
         color: var(--hosp-orange-dark) !important;
     }
 }
-
+.main-nav .nav-link.active {
+    background: #fff !important;
+    color: var(--hosp-orange-dark) !important;
+}
 /* Dropdown ของเมนูแผนก: กว้างพอสำหรับชื่อเอกสาร */
 .dept-nav-dropdown {
     min-width: 320px;
@@ -426,13 +493,13 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
     border-color: var(--hosp-orange);
 }
 .personnel-img {
-    width: 110px;
-    height: 110px;
+    width: 100%;
+    height: 320px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 12px;
     margin: 0 auto 12px;
     display: block;
-    border: 3px solid #f4ece2;
+    /*border: 3px solid #f4ece2;*/
     cursor: zoom-in;
 }
 .personnel-img-placeholder {
@@ -576,4 +643,41 @@ body { background-color: #f8f4f0; font-family: 'Sarabun', sans-serif, Arial; }
 .dept-banner-name {
     font-weight: 700;
     opacity: 0.95;
+}
+.modal {
+    z-index: 1055;
+}
+
+.modal-backdrop {
+    z-index: 1050;
+}
+
+.dept-hero-wrap{
+    width:100%;
+    height:400px;
+}
+
+#deptHeroCarousel,
+#deptHeroCarousel .carousel-inner,
+#deptHeroCarousel .carousel-item{
+    height:400px;
+}
+
+#deptHeroCarousel .carousel-item{
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.carousel-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.35);
+}
+
+.carousel-caption-custom{
+    position:absolute;
+    bottom:50px;
+    left:8%;
+    color:#fff;
 }

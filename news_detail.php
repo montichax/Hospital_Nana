@@ -27,12 +27,6 @@ if ($item_id <= 0) {
 </head>
 <body>
 
-<div class="top-bar">
-    <div class="container">
-        <i class="bi bi-telephone-fill"></i> สายด่วน: 044-316-999 ต่อ 4400 &nbsp;|&nbsp; <i class="bi bi-envelope-fill"></i> nursing@pkc.go.th
-    </div>
-</div>
-
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h1 id="headerTitle"><i class="bi bi-newspaper me-2"></i>กำลังโหลด...</h1>

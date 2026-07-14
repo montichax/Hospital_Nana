@@ -12,8 +12,7 @@
     --modal-btn-cancel-text: #495057;
     --modal-btn-cancel-hover-bg: #f8f9fa;
 }
-html, body { overflow-x: hidden; }
-body { font-family: 'Sarabun', sans-serif, Arial; }
+body { font-family: sans-serif; }
 .text-hospital { color: var(--hospital-orange) !important; }
 
 /* แถบบาร์ส้มทึบหัวแท็บ */
@@ -261,37 +260,6 @@ body { font-family: 'Sarabun', sans-serif, Arial; }
 .dept-content-table .col-order   { width: 7%;  }
 .dept-content-table .col-action  { width: 11%; }
 
-/* ตารางจัดการผู้ใช้ (จาก admin.php - tab users) */
-.users-table-scroll {
-    max-height: 62vh;
-    overflow: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    background: #ffffff;
-}
-.users-table-scroll thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #ffffff;
-    box-shadow: inset 0 -1px 0 #dee2e6;
-}
-.users-table {
-    display: table !important;
-    table-layout: fixed !important;
-    width: 100% !important;
-    min-width: 700px;
-    margin-bottom: 0 !important;
-    white-space: normal !important;
-}
-.users-table th,
-.users-table td { white-space: normal !important; vertical-align: middle; word-break: break-word; }
-.users-table .col-id     { width: 8%; }
-.users-table .col-name   { width: 30%; }
-.users-table .col-role   { width: 16%; }
-.users-table .col-dept   { width: 22%; }
-.users-table .col-action { width: 24%; }
-
 /* Banner preview thumbnail (จาก admin.php) */
 .banner-thumb {
     width: 100px;
@@ -333,14 +301,7 @@ body { font-family: 'Sarabun', sans-serif, Arial; }
         padding-left: 3em !important;
     }
 
-    .user-submit-col {
-        margin-top: 8px;
-    }
-    .user-submit-col .btn {
-        width: 100%;
-    }
-
-    table:not(.admin-table-scroll table):not(.dept-content-scroll table) {
+    table {
         display: block;
         width: 100%;
         overflow-x: auto;
