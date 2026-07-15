@@ -33,6 +33,21 @@ $stmt->execute([':id' => $DEPT_ID]);
 $dept = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$dept) $dept = ['id' => $DEPT_ID, 'name' => $DEPT_NAME, 'link_url' => null];
 
+// ---------- Banner ของแผนก ----------
+$stmt = $conn->prepare("
+    SELECT *
+    FROM banners
+    WHERE department_id = :dept_id
+      AND is_active = 1
+    ORDER BY sort_order ASC, id ASC
+");
+
+$stmt->execute([
+    ':dept_id' => $DEPT_ID
+]);
+
+$slides = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // ---------- เนื้อหาของแผนกนี้ (จัดกลุ่มตาม section) ----------
 $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id = :id ORDER BY section ASC, sort_order ASC, id ASC");
 $stmt->execute([':id' => $DEPT_ID]);
@@ -221,6 +236,61 @@ function renderAttachments($row) {
     </div>
 </nav>
 
+<!-- แบนเนอร์สไลด์โชว์ของแผนก -->
+<?php if(!empty($slides)): ?>
+<div class="dept-hero-wrap">
+    <div id="deptHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+            <?php foreach($slides as $i => $slide):
+                $isActive = ($i==0)?'active':'';
+                $bgUrl = 'uploads/' . htmlspecialchars($slide['image_name']);
+                $bgStyle = "background-image:url('{$bgUrl}');";
+                $slide_link = htmlspecialchars($slide['link_url'] ?? '');
+                $slide_sub  = htmlspecialchars($slide['subtitle'] ?? '');
+            ?>
+            <div class="carousel-item <?= $isActive ?>" style="<?= $bgStyle ?>">
+                <div class="carousel-overlay"></div>
+                <div class="carousel-caption-custom">
+                    <?php if($slide_sub): ?>
+                        <p class="mb-4">
+                            <?= $slide_sub ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if($slide_link): ?>
+                        <a href="<?= $slide_link ?>"
+                           target="_blank"
+                           class="btn-readmore">
+                            อ่านเพิ่มเติม
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if(count($slides)>1): ?>
+        <button class="carousel-control-prev" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#deptHeroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- เนื้อหาหลักของแผนก -->
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered p-0" style="background:rgba(0,0,0,0.92);">
+        <div class="modal-content border-0" style="background:transparent;">
+            <div class="modal-body d-flex align-items-center justify-content-center p-2 position-relative" style="min-height:100vh;">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="font-size:1.4rem; z-index:10;"></button>
+                <img id="lightboxImg" src="" alt="" style="max-width:100%; max-height:95vh; object-fit:contain; border-radius:6px; display:none;">
+                <embed id="lightboxPdf" src="" type="application/pdf" style="width:96vw; height:94vh; border-radius:6px; display:none;">
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -376,6 +446,11 @@ function renderAttachments($row) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>window.DEPT_ID = <?= (int)$DEPT_ID ?>;</script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/dept-api.js"></script>
+<script src="assets/js/dept-context.js"></script>
+<script src="assets/js/dept-banner.js"></script>
 <script>
 (function () {
     const modalEl = document.getElementById('lightboxModal');

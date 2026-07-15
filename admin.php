@@ -85,43 +85,38 @@ function renderSectionOptions($primary_sections, $primary_label, $general_conten
     return $html;
 }
 
-$department_content_sections = [
-    'knowledge'       => 'ข่าวประชาสัมพันธ์ / เกร็ดความรู้',
-    'structure'       => 'โครงสร้างการบริหารงาน',
-    'personnel'       => 'ทำเนียบบุคลากร',
-    'service'         => 'การให้บริการต่างๆ',
-    'service_profile' => 'Service Profile',
-    'indicator'       => 'ตัวชี้วัด',
-    'academic'        => 'ผลงานวิจัย / วิชาการ',
-    'wi'              => 'WI / SP'
-];
-
-// หมวดเนื้อหา "ทั่วไป" (ไม่ผูกกับแผนก) — 1 หมวด ต่อ 1 หน้าเว็บกลางขององค์กร (key = ชื่อไฟล์ไม่รวม .php)
+// หมวดเนื้อหาทั่วไป (key = ชื่อไฟล์ไม่รวม .php)
 $general_content_sections = [
-    'vision_mission'    => 'วิสัยทัศน์ / พันธกิจ',
-    'nurse_roster'      => 'ทำเนียบพยาบาล',
-    'executives'        => 'ทำเนียบหัวหน้ากลุ่มงาน',
-    'ward_heads'        => 'ทำเนียบหัวหน้างาน',
-    'org_structure'     => 'โครงสร้างบริหาร',
-    'regulations'       => 'คู่มือบริหาร',
-    'plans_projects'    => 'แผนยุทธศาสตร์การพยาบาล',
-    'staff_dev_plan'    => 'แผนพัฒนาบุคลากร',
-    'risk_management'   => 'บริหารความเสี่ยง',
-    'nursing_ethics'    => 'จริยธรรมการพยาบาล',
-    'dataset'           => 'Data set',
-    'downloads'         => 'เอกสารดาวน์โหลด',
-    'kpi'               => 'ตัวชี้วัดคุณภาพ',
-    'service_profile'   => 'Service profile',
-    'cpg'               => 'CNPG',
-    'wi'                => 'WI',
-    'research'          => 'วิจัย',
-    'staffing'          => 'อัตรากำลัง',
-    'workload'          => 'ภาระงาน',
-    'meeting_reports'   => 'รายงานการประชุม',
-    'infection_control' => 'IC / การป้องกันการติดเชื้อ',
-    'knowledge_base'    => 'คลังความรู้ / KM',
-    'patient_safety'    => 'Patient Safety',
-    'training'          => 'อบรม / สัมมนา',
+    // เกี่ยวกับกลุ่มงาน
+    'executives'         => 'ทำเนียบหัวหน้ากลุ่มงาน',
+    'ward_heads'         => 'ทำเนียบหัวหน้างาน',
+    'personnel_gallery'  => 'รูปบุคลากร',
+
+    // งานบริหาร
+    'org_structure'      => 'โครงสร้างบริหาร',
+    'risk_management'    => 'บริหารความเสี่ยง',
+    'nursing_ethics'     => 'จริยธรรมการพยาบาล',
+
+    // งานบริการ
+    'supervision_results' => 'ผลการนิเทศ',
+
+    // งานวิชาการ
+    'dataset'            => 'Data Set',
+
+    // คุณภาพการพยาบาล
+    'kpi'                => 'ตัวชี้วัด',
+    'service_profile'    => 'Service Profile',
+    'cpg'                => 'CNPG',
+    'wi'                 => 'WI',
+    'research'           => 'วิจัย',
+
+    // งานสารสนเทศ
+    'staffing'           => 'อัตรากำลัง',
+    'workload'           => 'ภาระงาน',
+
+    // ข่าวประชาสัมพันธ์
+    'news'               => 'ข่าวสารของแผนก',
+    'meeting_reports'    => 'รายงานการประชุม',
 ];
 
 // หมวดเนื้อหา "หน้าหลัก (index)" — เก็บใน department_contents โดย department_id = NULL, section ขึ้นต้นด้วย "idx_"
@@ -129,9 +124,10 @@ $general_content_sections = [
 $index_page_groups = [
     'เกี่ยวกับกลุ่มงาน' => [
         'idx_vision_mission' => 'วิสัยทัศน์ / พันธกิจ',
-        'idx_nurse_roster'   => 'ทำเนียบพยาบาล',
+        'idx_nurse_roster'   => 'ทำเนียบหัวหน้าพยาบาล',
         'idx_executives'     => 'ทำเนียบหัวหน้ากลุ่มงาน',
         'idx_ward_heads'     => 'ทำเนียบหัวหน้างาน',
+        'idx_personnel_gallery' => 'รูปบุคลากร',
     ],
     'งานบริหาร' => [
         'idx_org_structure'   => 'โครงสร้างบริหาร',
@@ -140,6 +136,9 @@ $index_page_groups = [
         'idx_staff_dev_plan'  => 'แผนพัฒนาบุคลากร',
         'idx_risk_management' => 'บริหารความเสี่ยง',
         'idx_nursing_ethics'  => 'จริยธรรมการพยาบาล',
+    ],
+    'งานบริการ' => [
+        'idx_supervision_results'   => 'ผลการนิเทศ',
     ],
     'งานวิชาการ' => [
         'idx_dataset'   => 'Data set',
@@ -160,6 +159,45 @@ $index_page_groups = [
         'idx_news'            => 'ข่าวสาร',
         'idx_meeting_reports' => 'รายงานการประชุม',
     ],
+];
+
+$indexPageLinks = [
+    // เกี่ยวกับกลุ่มงาน
+    'idx_vision_mission'      => 'vission.php',
+    'idx_nurse_roster'        => 'nurse_roster.php',
+    'idx_executives'          => 'executives_index.php',
+    'idx_ward_heads'          => 'ward_heads_index.php',
+    'idx_personnel_gallery'   => 'personnel_gallery_index.php',
+
+    // งานบริหาร
+    'idx_org_structure'       => 'org_structure_index.php',
+    'idx_regulations'         => 'regulations.php',
+    'idx_plans_projects'      => 'plans_projects.php',
+    'idx_staff_dev_plan'      => 'staff_dev_plan.php',
+    'idx_risk_management'     => 'risk_management_index.php',
+    'idx_nursing_ethics'      => 'nursing_ethics_index.php',
+
+    // งานบริการ
+    'idx_supervision_results'=> 'supervision_results_index.php',
+
+    // งานวิชาการ
+    'idx_dataset'             => 'dataset_index.php',
+    'idx_downloads'           => 'downloads.php',
+
+    // คุณภาพการพยาบาล
+    'idx_kpi'                 => 'kpi_index.php',
+    'idx_service_profile'     => 'service_profile_index.php',
+    'idx_cpg'                 => 'cpg_index.php',
+    'idx_wi'                  => 'wi_index.php',
+    'idx_research'            => 'research_index.php',
+
+    // งานสารสนเทศ
+    'idx_staffing'            => 'staffing_index.php',
+    'idx_workload'            => 'workload_index.php',
+
+    // ข่าวประชาสัมพันธ์
+    'idx_news'                => 'all_news.php',
+    'idx_meeting_reports'     => 'meeting_reports_index.php'
 ];
 // Flatten สำหรับ lookup
 $index_page_sections = [];

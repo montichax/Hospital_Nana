@@ -33,6 +33,21 @@ $stmt->execute([':id' => $DEPT_ID]);
 $dept = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$dept) $dept = ['id' => $DEPT_ID, 'name' => $DEPT_NAME, 'link_url' => null];
 
+// ---------- Banner ของแผนก ----------
+$stmt = $conn->prepare("
+    SELECT *
+    FROM banners
+    WHERE department_id = :dept_id
+      AND is_active = 1
+    ORDER BY sort_order ASC, id ASC
+");
+
+$stmt->execute([
+    ':dept_id' => $DEPT_ID
+]);
+
+$slides = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // ---------- เนื้อหาของแผนกนี้ (จัดกลุ่มตาม section) ----------
 $stmt = $conn->prepare("SELECT * FROM department_contents WHERE department_id = :id ORDER BY section ASC, sort_order ASC, id ASC");
 $stmt->execute([':id' => $DEPT_ID]);
@@ -277,8 +292,6 @@ function renderAttachments($row) {
     </div>
 </div>
 
-
-
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-9 col-xl-8">
@@ -433,6 +446,11 @@ function renderAttachments($row) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>window.DEPT_ID = <?= (int)$DEPT_ID ?>;</script>
+<script src="assets/js/api-config.js"></script>
+<script src="assets/js/dept-api.js"></script>
+<script src="assets/js/dept-context.js"></script>
+<script src="assets/js/dept-banner.js"></script>
 <script>
 (function () {
     const modalEl = document.getElementById('lightboxModal');
