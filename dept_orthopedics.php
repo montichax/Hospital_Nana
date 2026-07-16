@@ -218,6 +218,7 @@ function renderAttachments($row) {
                     <ul class="dropdown-menu" aria-labelledby="infoDropdown">
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'staffing.php?id=' . (int)$DEPT_ID : 'staffing.php' ?>"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'workload.php?id=' . (int)$DEPT_ID : 'workload.php' ?>"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'dashboard.php?id=' . (int)$DEPT_ID : 'dashboard.php' ?>"><i class="bi bi-clipboard2-check-fill me-2"></i> ผลการนิเทศ</a></li>
                     </ul>
                 </div>
 
