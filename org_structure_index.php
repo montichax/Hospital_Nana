@@ -139,6 +139,51 @@ function renderAttachments($row) {
     <link rel="stylesheet" href="all_news.css">
     <link rel="stylesheet" href="department.css">
     <link rel="stylesheet" href="index.css">
+
+<style>
+.structure-frame{
+    width:98%;
+    margin:30px auto;
+    background:#fff;
+    border:1px solid #e8e8e8;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.frame-title{
+    text-align:center;
+    font-size:24px;
+    font-weight:700;
+    color:#0000CD;
+    margin-bottom:25px;
+    position:relative;
+    padding-bottom:15px;
+}
+
+.frame-title::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:180px;
+    height:3px;
+    background:#e67e22;
+    border-radius:10px;
+}
+
+.structure-image{
+    text-align:center;
+}
+
+.structure-image img{
+    width:98%;
+    height:auto;
+    display:block;
+    margin:auto;
+}
+</style>
 </head>
 <body>
 
@@ -276,14 +321,16 @@ function renderAttachments($row) {
     </div>
 </div>
 
-<div class="container my-5">
+<div class="container-fluid mt-2 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8" id="generalContent">
-            <div class="empty-state">
-        <i class="bi bi-cone-striped"></i>
-        <p>หน้า "โครงสร้างบริหาร" อยู่ระหว่างการจัดทำ</p>
-        <p class="small">ขออภัยในความไม่สะดวก กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง</p>
-    </div>
+        <div class="col-12">
+            <div class="structure-frame">
+                <div class="structure-image">
+                    <img src="uploads/โครงสร้างบริการ1.png" alt="โครงสร้างบริหาร">
+                </div>
+
+            </div>
+
         </div>
     </div>
 </div>

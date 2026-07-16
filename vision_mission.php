@@ -139,6 +139,122 @@ function renderAttachments($row) {
     <link rel="stylesheet" href="all_news.css">
     <link rel="stylesheet" href="department.css">
     <link rel="stylesheet" href="index.css">
+
+    <head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="department.css">
+
+    <style>
+
+    body{
+    background:#f4f5f7;
+    font-family:'Sarabun',sans-serif;
+}
+
+.content-frame{
+    width:100%;
+    margin:0 auto;
+    background:#fff;
+    border:2px solid transparent;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08);
+    padding:30px 35px;
+    height:100%;
+    transition:all .35s ease;
+}
+
+.content-frame:hover{
+    transform:translateY(-8px);
+    border-color:#ff8c1a;
+    box-shadow:
+        0 0 8px rgba(255,140,26,.6),
+        0 0 18px rgba(255,140,26,.45),
+        0 0 35px rgba(255,140,26,.30),
+        0 18px 40px rgba(0,0,0,.15);
+}
+
+.frame-title{
+    text-align:center;
+    font-size:24px;
+    font-weight:700;
+    color:#0000CD;
+    line-height:1.5;
+    margin-bottom:40px;
+    position:relative;
+    padding-bottom:18px;
+}
+
+.frame-title::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:180px;
+    height:3px;
+    background:#e67e22;
+    border-radius:10px;
+    box-shadow:0 0 8px rgba(230,126,34,.4);
+}
+
+.section-title{
+    font-size:20px;
+    font-weight:700;
+    color:#222;
+    border-left:5px solid #fa7705;
+    padding-left:10px;
+    margin-bottom:15px;
+}
+
+.vision-text{
+    text-align:center;
+    font-size:18px;
+    line-height:1.8;
+    margin:20px 0 30px;
+    font-weight:500;
+}
+
+.mission-list{
+    padding-left:22px;
+    font-size:17px;
+    line-height:1.8;
+}
+
+.core-value{
+    margin-top:20px;
+    padding:15px;
+    background:#fff7ef;
+    border-left:5px solid #e67e22;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:600;
+    text-align:center;
+}
+
+@media (max-width:992px){
+    .content-frame{
+        width:100%;
+        padding:25px;
+        margin-bottom:25px;
+    }
+
+    .frame-title{
+        font-size:20px;
+    }
+
+    .section-title{
+        font-size:18px;
+    }
+
+    .vision-text,
+    .mission-list,
+    .core-value{
+        font-size:16px;
+    }
+}
+    </style>
+
+</head>
 </head>
 <body>
 
@@ -277,14 +393,90 @@ function renderAttachments($row) {
 </div>
 
 <div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8" id="generalContent">
-            <div class="empty-state">
-        <i class="bi bi-cone-striped"></i>
-        <p>หน้า "วิสัยทัศน์ / พันธกิจ" อยู่ระหว่างการจัดทำ</p>
-        <p class="small">ขออภัยในความไม่สะดวก กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง</p>
-    </div>
+    <div class="row gx-0 gy-4 justify-content-center align-items-start">
+        <div class="col-lg-5 px-2">
+            <div class="content-frame">
+                <h2 class="frame-title"> วิสัยทัศน์ / พันธกิจ<br>🏥 โรงพยาบาลปากช่องนานา</h2>
+                <h4 class="section-title">วิสัยทัศน์</h4>
+                <p class="vision-text">
+                    " ศูนย์การแพทย์และการสาธารณสุขชั้นเลิศ ในเขตการท่องเที่ยวระดับประเทศ "
+                </p>
+
+                <h4 class="section-title mt-5">พันธกิจ</h4>
+                <ol class="mission-list">
+                    <li>พัฒนาระบบการแพทย์เฉพาะทางขั้นสูงทุกสาขา</li>
+                    <li>สถาบันร่วมผลิตบุคลากรด้านการแพทย์และการสาธารณสุข</li>
+                    <li>พัฒนาระบบบริการสุขภาพปฐมภูมิแบบไร้รอยต่อ</li>
+                    <li>พัฒนาคุณภาพระบบบริหารจัดการโรงพยาบาลและเครือข่ายบริการสุขภาพ</li>
+                    <li>พัฒนาคุณภาพบริการสาธารณสุขในเขตการท่องเที่ยวเชิงนิเวศ</li>
+                </ol>
+
+                <h4 class="section-title mt-5">เข็มมุ่ง</h4>
+                <ol class="mission-list">
+                    <li>3P Safety (Patient-Personal-People) <br> “ผู้ให้บริการมั่นใจ ผู้ป่วยปลอดภัย ใส่ใจสิ่งแวดล้อม”</li>
+                    <li>ความมั่นคงทางการเงินการคลัง</li>
+                </ol>
+
+                <h4 class="section-title mt-5">เป้าหมาย</h4>
+                <ol class="mission-list">
+                    <li>ประชาชนสุขภาพดี</li>
+                    <li>เจ้าหน้าที่มีความสุข</li>
+                    <li>ระบบสุขภาพยั่งยืน</li>
+                </ol>
+
+                <h4 class="section-title mt-5">ค่านิยมหลัก</h4>
+                <div class="core-value">
+                    " ร่วมใจ ใฝ่งาน บริการดุจญาติมิตร "
+                </div>
+
+            </div>
         </div>
+
+        <div class="col-lg-5 px-2">
+            <div class="content-frame">
+                <h2 class="frame-title">วิสัยทัศน์ / พันธกิจ<br>🩺 ฝ่ายการพยาบาล</h2>
+                <h4 class="section-title">วิสัยทัศน์</h4>
+                <p class="vision-text">
+                    “ องค์กรพยาบาลชั้นเลิศในเขตการท่องเที่ยวระดับประเทศ ”
+                </p>
+
+                <h4 class="section-title mt-5">พันธกิจ</h4>
+                <ol class="mission-list">
+                    <li>พัฒนาสมรรถนะพยาบาลเฉพาะทางทุกสาขา</li>
+                    <li>เป็นแหล่งฝึกร่วมบุคลากรทางการแพทย์และสาธารณสุข</li>
+                    <li>จัดระบบบริการพยาบาลร่วมกับปฐมภูมฺแบบไร้รอยต่อ</li>
+                    <li>ส่งเสริมพัฒนาวิจัยและนวัตกรรมทางการพยาบาล</li>
+                    <li>พัฒนาระบบเทคโนโลยีสารสนเทศทางการพยาบาล</li>
+                </ol>
+
+                <h4 class="section-title mt-5">เข็มมุ่ง</h4>
+                <ol class="mission-list">
+                    <li>3P Safety (Patient-Personal-People)
+                        <br>- Cyber security
+                        <br>- พฤติกรรมบริการ
+                        <br>- Patient identification</li>
+                    <li>ความมั่นคงทางการเงินการคลัง 
+                        <br>- เพิ่มประสิทธิภาพจัดเก็บรายได้
+                        <br>- เพิ่มประสิทธิภาพลดรายจ่าย
+                        <br>- เพิ่มช่องทางในการหารายได้</li>
+                    <li>ผ่านการประเมิน NOA Class</li>
+                </ol>
+
+                <h4 class="section-title mt-5">เป้าหมาย</h4>
+                <ol class="mission-list">
+                    <li>ประชาชนสุขภาพดี</li>
+                    <li>เจ้าหน้าที่มีความสุข</li>
+                    <li>ระบบสุขภาพยั่งยืน</li>
+                </ol>
+
+                <h4 class="section-title mt-5">ค่านิยมหลัก</h4>
+                <div class="core-value">
+                    " ร่วมใจ ใฝ่งาน บริการดุจญาติมิตร "
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 

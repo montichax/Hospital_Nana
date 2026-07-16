@@ -635,3 +635,79 @@ img {
         line-height: 1.5;
     }
 }
+/* ---------- Vision Mission ---------- */
+
+.vision-card{
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid #ead6c6;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.vision-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+
+.vision-header{
+    background:linear-gradient(90deg,#c47a3d,#e6864d);
+    color:#fff;
+    text-align:center;
+    font-size:30px;
+    font-weight:700;
+    padding:20px;
+    letter-spacing:.5px;
+}
+
+.vision-header i{
+    margin-right:10px;
+}
+
+.vision-body{
+    padding:35px;
+    min-height:340px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+
+.vision-body p{
+    font-size:24px;
+    line-height:2;
+    text-align:center;
+    color:#444;
+    font-weight:500;
+}
+
+.vision-body ul{
+    padding-left:25px;
+    margin:0;
+}
+
+.vision-body li{
+    font-size:22px;
+    line-height:2;
+    margin-bottom:12px;
+    color:#444;
+}
+
+@media(max-width:768px){
+
+    .vision-header{
+        font-size:24px;
+    }
+
+    .vision-body{
+        min-height:auto;
+        padding:25px;
+    }
+
+    .vision-body p,
+    .vision-body li{
+        font-size:18px;
+    }
+
+}
