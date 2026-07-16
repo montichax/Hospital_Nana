@@ -200,7 +200,7 @@ ORDER BY sort_order,id
                         <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้าพยาบาล</a></li>
                         <li><a class="dropdown-item" href="executives_index.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
                         <li><a class="dropdown-item" href="ward_heads_index.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery_index.php"><i class="bi bi-people-fill me-2 "></i> รูปบุคลากร</a></li>
+                        <!-- <li><a class="dropdown-item" href="personnel_gallery_index.php"><i class="bi bi-people-fill me-2 "></i> รูปบุคลากร</a></li> -->
                     </ul>
                 </div>
 

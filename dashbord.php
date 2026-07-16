@@ -217,6 +217,7 @@ function renderAttachments($row) {
                     <ul class="dropdown-menu" aria-labelledby="infoDropdown">
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'staffing.php?id=' . (int)$DEPT_ID : 'staffing.php' ?>"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'workload.php?id=' . (int)$DEPT_ID : 'workload.php' ?>"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'dashboard.php?id=' . (int)$DEPT_ID : 'dashboard.php' ?>"><i class="bi bi-speedometer2 me-2"></i> Dashbord</a></li>
                     </ul>
                 </div>
 
@@ -237,7 +238,7 @@ function renderAttachments($row) {
 
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h1><i class="bi bi-book-half me-2"></i>คลังความรู้ / KM</h1>
+        <h1><i class="bi bi-clipboard2-pulse-fill me-2"></i>Dashbord</h1>
     </div>
 </div>
 
@@ -246,7 +247,7 @@ function renderAttachments($row) {
         <div class="col-lg-9 col-xl-8" id="generalContent">
             <div class="empty-state">
         <i class="bi bi-cone-striped"></i>
-        <p>หน้า "คลังความรู้ / KM" อยู่ระหว่างการจัดทำ</p>
+        <p>หน้า "Dashbord" อยู่ระหว่างการจัดทำ</p>
         <p class="small">ขออภัยในความไม่สะดวก กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง</p>
     </div>
         </div>
@@ -288,7 +289,7 @@ function renderAttachments($row) {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>window.CONTENT_SECTION = 'knowledge_base';</script>
+<script>window.CONTENT_SECTION = 'cpg';</script>
 <script src="assets/js/api-config.js"></script>
 <script src="assets/js/dept-context.js"></script>
 <script src="assets/js/general-content.js"></script>

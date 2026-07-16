@@ -199,7 +199,7 @@ function renderAttachments($row) {
                         <li><a class="dropdown-item" href="nurse_roster.php"><i class="bi bi-people-fill me-2"></i> ทำเนียบหัวหน้าพยาบาล</a></li>
                         <li><a class="dropdown-item" href="executives_index.php"><i class="bi bi-person-badge-fill me-2"></i> ทำเนียบหัวหน้ากลุ่มงาน</a></li>
                         <li><a class="dropdown-item" href="ward_heads_index.php"><i class="bi bi-person-lines-fill me-2"></i> ทำเนียบหัวหน้างาน</a></li>
-                        <li><a class="dropdown-item" href="personnel_gallery_index.php"><i class="bi bi-people-fill me-2 "></i> บุคลากร</a></li>
+                        <!-- <li><a class="dropdown-item" href="personnel_gallery_index.php"><i class="bi bi-people-fill me-2 "></i> บุคลากร</a></li> -->
                     </ul>
                 </div>
 
@@ -251,6 +251,7 @@ function renderAttachments($row) {
                     <ul class="dropdown-menu" aria-labelledby="informationDropdown">
                         <li><a class="dropdown-item" href="staffing_index.php"><i class="bi bi-people-fill me-2"></i> อัตรากำลัง</a></li>
                         <li><a class="dropdown-item" href="workload_index.php"><i class="bi bi-bar-chart-line me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="dashboard_index.php"><i class="bi bi-speedometer2 me-2"></i> Dashbord</a></li>
                     </ul>
                 </div>
 

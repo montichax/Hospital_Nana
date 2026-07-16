@@ -126,7 +126,7 @@ function renderAttachments($row) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>วิสัยทัศน์ / พันธกิจ - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
+    <title>CNPG - กลุ่มงานการพยาบาล โรงพยาบาลปากช่องนานา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -217,6 +217,7 @@ function renderAttachments($row) {
                     <ul class="dropdown-menu" aria-labelledby="infoDropdown">
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'staffing.php?id=' . (int)$DEPT_ID : 'staffing.php' ?>"><i class="bi bi-diagram-2-fill me-2"></i> อัตรากำลัง</a></li>
                         <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'workload.php?id=' . (int)$DEPT_ID : 'workload.php' ?>"><i class="bi bi-speedometer2 me-2"></i> ภาระงาน</a></li>
+                        <li><a class="dropdown-item" href="<?= isset($DEPT_ID) ? 'dashboard.php?id=' . (int)$DEPT_ID : 'dashboard.php' ?>"><i class="bi bi-speedometer2 me-2"></i> Dashbord</a></li>
                     </ul>
                 </div>
 
